@@ -267,6 +267,11 @@ class QuoteSearch {
             const clientPostcode = (quote.clientInfo?.postcode || '').toLowerCase();
             const clientCompany = (quote.companyInfo?.name || '').toLowerCase();
             const clientABN = (quote.companyInfo?.abn || '').toLowerCase();
+            const trafficControlType = (quote.serviceInfo?.trafficControlType || '').toLowerCase();
+            const trafficControlNotes = (quote.serviceInfo?.trafficControlNotes || '').toLowerCase();
+            const trafficControlEquipment = (quote.serviceInfo?.trafficControlEquipment || '').toLowerCase();
+            const trafficControlPermits = (quote.serviceInfo?.trafficControlPermits || '').toLowerCase();
+            const trafficControlWeather = (quote.serviceInfo?.trafficControlWeather || '').toLowerCase();
             
             const matchesSearch = !searchTerm || 
                 clientName.includes(searchTerm) ||
@@ -278,7 +283,12 @@ class QuoteSearch {
                 clientCity.includes(searchTerm) ||
                 clientPostcode.includes(searchTerm) ||
                 clientCompany.includes(searchTerm) ||
-                clientABN.includes(searchTerm);
+                clientABN.includes(searchTerm) ||
+                trafficControlType.includes(searchTerm) ||
+                trafficControlNotes.includes(searchTerm) ||
+                trafficControlEquipment.includes(searchTerm) ||
+                trafficControlPermits.includes(searchTerm) ||
+                trafficControlWeather.includes(searchTerm);
 
             // Status filter
             const isSaved = quote.calculations && Object.keys(quote.calculations).length > 0;
@@ -406,6 +416,7 @@ class QuoteSearch {
                         ${quote.clientInfo?.address ? `<p><strong>Address:</strong> ${quote.clientInfo.address}${quote.clientInfo?.city ? `, ${quote.clientInfo.city}` : ''}${quote.clientInfo?.postcode ? ` ${quote.clientInfo.postcode}` : ''}</p>` : ''}
                         ${quote.companyInfo?.name ? `<p><strong>Company:</strong> ${quote.companyInfo.name}</p>` : ''}
                         ${quote.companyInfo?.abn ? `<p><strong>ABN:</strong> ${quote.companyInfo.abn}</p>` : ''}
+                        ${quote.serviceInfo?.trafficControl === 'Yes' ? `<p><strong>Traffic Control:</strong> ${quote.serviceInfo.trafficControlType || 'Required'}</p>` : ''}
                     </div>
                     <div class="quote-result-actions">
                         <button class="btn btn-secondary btn-sm view-quote-btn" data-quote-id="${quote._id}" title="View Quote">

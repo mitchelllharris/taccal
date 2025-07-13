@@ -142,6 +142,162 @@ class AsphaltCalculator {
                 wasteDetails.classList.add('hidden');
             }
         });
+
+        // Setup multi-select components
+        this.setupMultiSelect();
+    }
+
+    setupMultiSelect() {
+        const multiSelectFields = [
+            'traffic_control_equipment',
+            'traffic_control_permits', 
+            'traffic_control_weather'
+        ];
+
+        multiSelectFields.forEach(fieldName => {
+            this.setupMultiSelectField(fieldName);
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.multi-select-container')) {
+                document.querySelectorAll('.multi-select-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                });
+                document.querySelectorAll('.multi-select-display').forEach(display => {
+                    display.classList.remove('active');
+                });
+            }
+        });
+    }
+
+    setupMultiSelectField(fieldName) {
+        const display = document.getElementById(`${fieldName}_display`);
+        const dropdown = document.getElementById(`${fieldName}_dropdown`);
+        const hiddenInput = document.getElementById(fieldName);
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+
+        if (!display || !dropdown || !hiddenInput) return;
+
+        // Toggle dropdown
+        display.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = dropdown.classList.contains('show');
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.multi-select-dropdown').forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.remove('show');
+                }
+            });
+            document.querySelectorAll('.multi-select-display').forEach(d => {
+                if (d !== display) {
+                    d.classList.remove('active');
+                }
+            });
+
+            // Toggle current dropdown
+            dropdown.classList.toggle('show');
+            display.classList.toggle('active');
+        });
+
+        // Handle checkbox changes
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.updateMultiSelectDisplay(fieldName);
+                this.updateMultiSelectValue(fieldName);
+                
+                // Trigger calculation if needed
+                if (this.isFormValid()) {
+                    this.calculateQuote(true);
+                }
+            });
+        });
+
+        // Add event listeners for real-time calculation
+        const debouncedCalculation = this.debounce(() => {
+            if (this.isFormValid()) {
+                this.calculateQuote(true);
+            }
+        }, 1000);
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', debouncedCalculation);
+        });
+
+        // Initialize display
+        this.updateMultiSelectDisplay(fieldName);
+    }
+
+    updateMultiSelectDisplay(fieldName) {
+        const display = document.getElementById(`${fieldName}_display`);
+        const checkboxes = document.querySelectorAll(`#${fieldName}_dropdown input[type="checkbox"]:checked`);
+        
+        if (!display) return;
+
+        if (checkboxes.length === 0) {
+            display.innerHTML = '<span class="placeholder">Select options</span>';
+        } else {
+            const selectedItems = Array.from(checkboxes).map(cb => cb.value);
+            const itemsHTML = selectedItems.map(item => 
+                `<span class="selected-item">${item}<span class="remove" data-value="${item}" data-field="${fieldName}">×</span></span>`
+            ).join('');
+            
+            display.innerHTML = `<div class="selected-items">${itemsHTML}</div>`;
+            
+            // Add remove event listeners
+            display.querySelectorAll('.remove').forEach(removeBtn => {
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const value = removeBtn.dataset.value;
+                    const checkbox = document.querySelector(`#${fieldName}_dropdown input[value="${value}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        this.updateMultiSelectDisplay(fieldName);
+                        this.updateMultiSelectValue(fieldName);
+                        
+                        if (this.isFormValid()) {
+                            this.calculateQuote(true);
+                        }
+                    }
+                });
+            });
+        }
+    }
+
+    updateMultiSelectValue(fieldName) {
+        const hiddenInput = document.getElementById(fieldName);
+        const checkboxes = document.querySelectorAll(`#${fieldName}_dropdown input[type="checkbox"]:checked`);
+        
+        if (!hiddenInput) return;
+
+        const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+        hiddenInput.value = selectedValues.join(', ');
+    }
+
+    loadMultiSelectField(fieldName, value) {
+        const hiddenInput = document.getElementById(fieldName);
+        const checkboxes = document.querySelectorAll(`#${fieldName}_dropdown input[type="checkbox"]`);
+        
+        if (!hiddenInput || !value) return;
+
+        // Clear all checkboxes first
+        checkboxes.forEach(cb => cb.checked = false);
+        
+        // Set the hidden input value
+        hiddenInput.value = value;
+        
+        // Check the appropriate checkboxes
+        const values = value.split(', ').filter(item => item.trim());
+        values.forEach(val => {
+            const checkbox = document.querySelector(`#${fieldName}_dropdown input[value="${val.trim()}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+        
+        // Update the display
+        this.updateMultiSelectDisplay(fieldName);
     }
 
     setupSectionToggles() {
@@ -169,7 +325,9 @@ class AsphaltCalculator {
             'area', 'depth', 'cost_per_tonne', 'asphalt_density',
             'base_area', 'base_depth', 'base_cost_per_tonne', 'base_density',
             'required_workers', 'time_to_complete_job', 'hourly_rate',
-            'profit_margin', 'tax_rate'
+            'profit_margin', 'tax_rate',
+            'traffic_control_hours_required', 'traffic_control_workers_required', 
+            'traffic_control_hourly_rate', 'traffic_control_complexity'
         ];
 
         calculationFields.forEach(fieldId => {
@@ -532,9 +690,12 @@ class AsphaltCalculator {
         // Calculate consumables
         const consumablesCost = this.calculateConsumablesCost();
         
+        // Calculate traffic control costs
+        const trafficControlCost = this.calculateTrafficControlCost();
+        
         // Calculate totals
         const totalCosts = totalLaborCost + asphaltCost + baseCost + totalOtherLaborCost + 
-                          equipmentDepreciation + consumablesCost + emulsionCost;
+                          equipmentDepreciation + consumablesCost + emulsionCost + trafficControlCost;
         
         const quote = totalCosts / (1 - profitMargin / 100);
         const profit = quote - totalCosts;
@@ -566,6 +727,7 @@ class AsphaltCalculator {
             totalOtherLaborCost: totalOtherLaborCost,
             equipmentDepreciation: equipmentDepreciation,
             consumablesCost: consumablesCost,
+            trafficControlCost: trafficControlCost,
             totalCosts: totalCosts,
             quote: quote,
             profit: profit,
@@ -620,6 +782,98 @@ class AsphaltCalculator {
         const gasCost = parseFloat(document.getElementById('gas_cost').value) || 0;
         
         return (paintQty * paintCost) + (petrolQty * petrolCost) + (dieselQty * dieselCost) + (gasQty * gasCost);
+    }
+
+    calculateTrafficControlCost() {
+        const trafficControl = document.getElementById('traffic_control').value;
+        
+        if (trafficControl !== 'Yes') {
+            return 0;
+        }
+        
+        const hours = parseFloat(document.getElementById('traffic_control_hours_required').value) || 0;
+        const workers = parseFloat(document.getElementById('traffic_control_workers_required').value) || 0;
+        const hourlyRate = parseFloat(document.getElementById('traffic_control_hourly_rate').value) || 45;
+        const complexity = document.getElementById('traffic_control_complexity').value;
+        const equipment = document.getElementById('traffic_control_equipment').value;
+        const permits = document.getElementById('traffic_control_permits').value;
+        
+        // Base cost calculation
+        let baseCost = hours * workers * hourlyRate;
+        
+        // Complexity multiplier
+        const complexityMultipliers = {
+            'Low': 1.0,
+            'Medium': 1.25,
+            'High': 1.5,
+            'Critical': 2.0
+        };
+        
+        const complexityMultiplier = complexityMultipliers[complexity] || 1.0;
+        baseCost *= complexityMultiplier;
+        
+        // Equipment costs
+        let equipmentCost = 0;
+        if (equipment) {
+            const equipmentCosts = {
+                'Stop/Slow Signs': 50,
+                'Barriers & Cones': 100,
+                'Arrow Boards': 200,
+                'Portable Traffic Lights': 500,
+                'Safety Vests & PPE': 75,
+                'Communication Radios': 150,
+                'All Equipment': 800
+            };
+            
+            // Handle multiple equipment selections
+            const equipmentList = equipment.split(', ').filter(item => item.trim());
+            if (equipmentList.includes('All Equipment')) {
+                equipmentCost = 800;
+            } else {
+                equipmentCost = equipmentList.reduce((total, item) => {
+                    return total + (equipmentCosts[item.trim()] || 0);
+                }, 0);
+            }
+        }
+        
+        // Permit costs
+        let permitCost = 0;
+        if (permits && permits !== 'No') {
+            const permitCosts = {
+                'Local Council': 200,
+                'State Government': 500,
+                'Police Approval': 300,
+                'Multiple Permits': 800
+            };
+            
+            // Handle multiple permit selections
+            const permitList = permits.split(', ').filter(item => item.trim());
+            if (permitList.includes('Multiple Permits')) {
+                permitCost = 800;
+            } else {
+                permitCost = permitList.reduce((total, item) => {
+                    return total + (permitCosts[item.trim()] || 0);
+                }, 0);
+            }
+        }
+        
+        // Weather considerations
+        const weather = document.getElementById('traffic_control_weather').value;
+        let weatherMultiplier = 1.0;
+        if (weather) {
+            const weatherList = weather.split(', ').filter(item => item.trim());
+            if (weatherList.includes('Multiple')) {
+                weatherMultiplier = 1.25;
+            } else if (weatherList.includes('Rain') || weatherList.includes('Wind')) {
+                weatherMultiplier = 1.15;
+            } else if (weatherList.includes('Heat')) {
+                weatherMultiplier = 1.1;
+            }
+        }
+        
+        const totalCost = (baseCost + equipmentCost + permitCost) * weatherMultiplier;
+        
+        return totalCost;
     }
 
     displayResults(results) {
@@ -678,6 +932,7 @@ class AsphaltCalculator {
                         <p><span class="highlight">Other Labor:</span> $${results.totalOtherLaborCost.toFixed(2)}</p>
                         <p><span class="highlight">Equipment:</span> $${results.equipmentDepreciation.toFixed(2)}</p>
                         <p><span class="highlight">Consumables:</span> $${results.consumablesCost.toFixed(2)}</p>
+                        <p><span class="highlight">Traffic Control:</span> $${results.trafficControlCost.toFixed(2)}</p>
                     </div>
                     
                     <div class="results-container">
@@ -857,8 +1112,16 @@ class AsphaltCalculator {
             serviceInfo: {
                 type: formData.service_type?.trim() || '',
                 trafficControl: formData.traffic_control || 'No',
+                trafficControlType: formData['traffic-control-type']?.trim() || '',
                 trafficControlHours: parseFloat(formData['traffic-control-hours-required']) || 0,
                 trafficControlWorkers: parseFloat(formData['traffic-control-workers-required']) || 0,
+                trafficControlHourlyRate: parseFloat(formData['traffic-control-hourly-rate']) || 45,
+                trafficControlEquipment: formData['traffic-control-equipment']?.trim() || '',
+                trafficControlPermits: formData['traffic-control-permits']?.trim() || '',
+                trafficControlNotification: formData['traffic-control-notification']?.trim() || '',
+                trafficControlComplexity: formData['traffic-control-complexity']?.trim() || '',
+                trafficControlWeather: formData['traffic-control-weather']?.trim() || '',
+                trafficControlNotes: formData['traffic-control-notes']?.trim() || '',
                 wasteDisposal: formData['waste-disposal-required'] || 'No',
                 wasteType: formData['waste-type']?.trim() || '',
                 wasteLoads: parseFloat(formData['waste-loads']) || 0
@@ -1024,8 +1287,18 @@ class AsphaltCalculator {
         if (data.serviceInfo) {
             document.getElementById('service_type').value = data.serviceInfo.type || '';
             document.getElementById('traffic_control').value = data.serviceInfo.trafficControl || 'No';
+            document.getElementById('traffic_control_type').value = data.serviceInfo.trafficControlType || '';
             document.getElementById('traffic_control_hours_required').value = data.serviceInfo.trafficControlHours || '';
             document.getElementById('traffic_control_workers_required').value = data.serviceInfo.trafficControlWorkers || '';
+            document.getElementById('traffic_control_hourly_rate').value = data.serviceInfo.trafficControlHourlyRate || 45;
+            // Load multi-select fields
+            this.loadMultiSelectField('traffic_control_equipment', data.serviceInfo.trafficControlEquipment || '');
+            this.loadMultiSelectField('traffic_control_permits', data.serviceInfo.trafficControlPermits || '');
+            this.loadMultiSelectField('traffic_control_weather', data.serviceInfo.trafficControlWeather || '');
+            
+            document.getElementById('traffic_control_notification').value = data.serviceInfo.trafficControlNotification || '';
+            document.getElementById('traffic_control_complexity').value = data.serviceInfo.trafficControlComplexity || '';
+            document.getElementById('traffic_control_notes').value = data.serviceInfo.trafficControlNotes || '';
             document.getElementById('waste_disposal').value = data.serviceInfo.wasteDisposal || 'No';
             document.getElementById('waste_type').value = data.serviceInfo.wasteType || '';
             document.getElementById('waste_loads').value = data.serviceInfo.wasteLoads || '';

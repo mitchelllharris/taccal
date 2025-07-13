@@ -354,6 +354,124 @@ input[type="number"]::-webkit-inner-spin-button {
     margin-bottom: 1rem;
 }
 
+/* Multi-Select Styles */
+.multi-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.multi-select-display {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--surface-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 2.75rem;
+}
+
+.multi-select-display:hover {
+    border-color: var(--text-secondary);
+}
+
+.multi-select-display.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+}
+
+.multi-select-display::after {
+    content: '\f107';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.multi-select-display.active::after {
+    transform: rotate(180deg);
+}
+
+.multi-select-display .placeholder {
+    color: var(--text-muted);
+}
+
+.multi-select-display .selected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.multi-select-display .selected-item {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.multi-select-display .selected-item .remove {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.multi-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 0.25rem;
+}
+
+.multi-select-dropdown.show {
+    display: block;
+}
+
+.multi-select-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.multi-select-option:last-child {
+    border-bottom: none;
+}
+
+.multi-select-option:hover {
+    background: var(--background-color);
+}
+
+.multi-select-option input[type="checkbox"] {
+    margin: 0;
+    width: 1rem;
+    height: 1rem;
+}
+
+.multi-select-option span {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
 /* Other Labor Form */
 .other-labor-form {
     background: var(--background-color);
