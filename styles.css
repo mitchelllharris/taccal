@@ -625,6 +625,11 @@ input[type="number"]::-webkit-inner-spin-button {
         margin-top: 1rem;
         justify-content: flex-end;
     }
+    
+    .date-range-inputs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1021,10 +1026,21 @@ input[type="number"]::-webkit-inner-spin-button {
     font-style: italic;
 }
 
-.btn-sm {
-    padding: 0.5rem 1rem;
-    font-size: 0.75rem;
-}
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .date-range-inputs {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .date-range-inputs input[type="date"] {
+        flex: 1;
+        min-width: 0;
+    }
 
 .load-more-container {
     text-align: center;

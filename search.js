@@ -44,7 +44,21 @@ class QuoteSearch {
         });
 
         document.getElementById('date-filter').addEventListener('change', () => {
+            this.handleDateFilterChange();
+        });
+
+        // Custom date range inputs
+        document.getElementById('date-from').addEventListener('change', () => {
             this.filterQuotes();
+        });
+
+        document.getElementById('date-to').addEventListener('change', () => {
+            this.filterQuotes();
+        });
+
+        // Export CSV button
+        document.getElementById('export-csv').addEventListener('click', () => {
+            this.exportToCSV();
         });
 
         // Load more button
@@ -165,6 +179,19 @@ class QuoteSearch {
         document.getElementById('empty-state').classList.add('hidden');
     }
 
+    handleDateFilterChange() {
+        const dateFilter = document.getElementById('date-filter').value;
+        const customDateRange = document.getElementById('custom-date-range');
+        
+        if (dateFilter === 'custom') {
+            customDateRange.style.display = 'block';
+        } else {
+            customDateRange.style.display = 'none';
+        }
+        
+        this.filterQuotes();
+    }
+
     async loadQuotes() {
         if (this.isLoading) return;
         
@@ -208,17 +235,23 @@ class QuoteSearch {
         const statusFilter = document.getElementById('status-filter').value;
         const serviceFilter = document.getElementById('service-filter').value;
         const dateFilter = document.getElementById('date-filter').value;
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
 
         this.filteredQuotes = this.allQuotes.filter(quote => {
-            // Search term filter
+            // Enhanced search term filter
             const clientName = this.getClientName(quote).toLowerCase();
             const quoteNumber = (quote.projectInfo?.quoteNumber || '').toLowerCase();
             const serviceType = (quote.serviceInfo?.type || '').toLowerCase();
+            const clientEmail = (quote.clientInfo?.email || '').toLowerCase();
+            const clientPhone = (quote.clientInfo?.mobile || '').toLowerCase();
             
             const matchesSearch = !searchTerm || 
                 clientName.includes(searchTerm) ||
                 quoteNumber.includes(searchTerm) ||
-                serviceType.includes(searchTerm);
+                serviceType.includes(searchTerm) ||
+                clientEmail.includes(searchTerm) ||
+                clientPhone.includes(searchTerm);
 
             // Status filter
             const isSaved = quote.calculations && Object.keys(quote.calculations).length > 0;
@@ -230,8 +263,8 @@ class QuoteSearch {
             const matchesService = !serviceFilter || 
                 quote.serviceInfo?.type === serviceFilter;
 
-            // Date filter
-            const matchesDate = this.matchesDateFilter(quote.createdAt, dateFilter);
+            // Enhanced date filter
+            const matchesDate = this.matchesDateFilter(quote.createdAt, dateFilter, dateFrom, dateTo);
 
             return matchesSearch && matchesStatus && matchesService && matchesDate;
         });
@@ -248,13 +281,36 @@ class QuoteSearch {
         return quote.clientInfo?.fullName || 'Unknown Client';
     }
 
-    matchesDateFilter(createdAt, dateFilter) {
-        if (!dateFilter || !createdAt) return true;
+    matchesDateFilter(createdAt, dateFilter, dateFrom, dateTo) {
+        if (!createdAt) return true;
 
         const quoteDate = new Date(createdAt);
+        
+        // Custom date range
+        if (dateFilter === 'custom') {
+            if (dateFrom && dateTo) {
+                const fromDate = new Date(dateFrom);
+                const toDate = new Date(dateTo);
+                toDate.setHours(23, 59, 59, 999); // End of day
+                return quoteDate >= fromDate && quoteDate <= toDate;
+            } else if (dateFrom) {
+                const fromDate = new Date(dateFrom);
+                return quoteDate >= fromDate;
+            } else if (dateTo) {
+                const toDate = new Date(dateTo);
+                toDate.setHours(23, 59, 59, 999); // End of day
+                return quoteDate <= toDate;
+            }
+            return true;
+        }
+
+        if (!dateFilter) return true;
+
         const now = new Date();
         const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const startOfQuarter = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
         const startOfYear = new Date(now.getFullYear(), 0, 1);
@@ -456,6 +512,102 @@ class QuoteSearch {
                 notification.remove();
             }, 300);
         }, 5000);
+    }
+
+    exportToCSV() {
+        if (this.filteredQuotes.length === 0) {
+            this.showNotification('No quotes to export. Please adjust your search criteria.', 'error');
+            return;
+        }
+
+        try {
+            // Prepare CSV data
+            const csvData = this.prepareCSVData();
+            
+            // Create and download CSV file
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `quotes_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            this.showNotification(`Successfully exported ${this.filteredQuotes.length} quotes to CSV!`, 'success');
+        } catch (error) {
+            console.error('Error exporting CSV:', error);
+            this.showNotification('Error exporting CSV file.', 'error');
+        }
+    }
+
+    prepareCSVData() {
+        // CSV headers
+        const headers = [
+            'Quote Number',
+            'Client Name',
+            'Client Email',
+            'Client Phone',
+            'Service Type',
+            'Status',
+            'Created Date',
+            'Total Amount',
+            'Area (sq m)',
+            'Depth (mm)',
+            'Labor Cost',
+            'Material Cost',
+            'Equipment Cost',
+            'Profit Margin (%)',
+            'Notes'
+        ];
+
+        // CSV rows
+        const rows = this.filteredQuotes.map(quote => {
+            const clientName = this.getClientName(quote);
+            const quoteNumber = quote.projectInfo?.quoteNumber || 'N/A';
+            const serviceType = quote.serviceInfo?.type || 'N/A';
+            const createdAt = quote.createdAt ? new Date(quote.createdAt).toLocaleDateString() : 'N/A';
+            const totalAmount = quote.calculations?.totalWithTax ? quote.calculations.totalWithTax.toFixed(2) : 'N/A';
+            const isSaved = quote.calculations && Object.keys(quote.calculations).length > 0;
+            const status = isSaved ? 'Saved' : 'Draft';
+            
+            // Extract calculation details
+            const area = quote.materials?.asphalt?.area || quote.calculations?.area || 'N/A';
+            const depth = quote.materials?.asphalt?.depth || 'N/A';
+            const laborCost = quote.calculations?.totalLaborCost ? quote.calculations.totalLaborCost.toFixed(2) : 'N/A';
+            const materialCost = quote.calculations?.asphaltCost ? quote.calculations.asphaltCost.toFixed(2) : 'N/A';
+            const equipmentCost = quote.calculations?.equipmentDepreciation ? quote.calculations.equipmentDepreciation.toFixed(2) : 'N/A';
+            const profitMargin = quote.projectInfo?.profitMargin || 'N/A';
+            const notes = quote.notes || '';
+
+            return [
+                quoteNumber,
+                clientName,
+                quote.clientInfo?.email || 'N/A',
+                quote.clientInfo?.mobile || 'N/A',
+                serviceType,
+                status,
+                createdAt,
+                totalAmount,
+                area,
+                depth,
+                laborCost,
+                materialCost,
+                equipmentCost,
+                profitMargin,
+                notes
+            ];
+        });
+
+        // Combine headers and rows
+        const csvContent = [headers, ...rows]
+            .map(row => row.map(cell => `"${cell}"`).join(','))
+            .join('\n');
+
+        return csvContent;
     }
 }
 
