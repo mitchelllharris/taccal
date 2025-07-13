@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asphalt Quote Calculator</title>
+    <link rel="stylesheet" href="styles.css" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1><i class="fas fa-calculator"></i> Asphalt Quote Calculator</h1>
+                    <div id="edit-mode-indicator" class="edit-mode-indicator hidden">
+                        <i class="fas fa-edit"></i>
+                        <span>Editing Quote</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="save-quote" class="btn btn-secondary" type="button">
+                        <i class="fas fa-save"></i> Save Quote
+                    </button>
+                    <button id="load-quote" class="btn btn-secondary" type="button">
+                        <i class="fas fa-folder-open"></i> Load Quote
+                    </button>
+                    <a href="search.html" class="btn btn-secondary" type="button">
+                        <i class="fas fa-search"></i> Search Quotes
+                    </a>
+                    <button id="new-quote" class="btn btn-primary" type="button">
+                        <i class="fas fa-plus"></i> New Quote
+                    </button>
+                    <button id="export-pdf" class="btn btn-primary" type="button">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <div class="form-container">
+                <form id="quote-form" class="quote-form">
+                    <!-- Client Information Section -->
+                    <section class="form-section" data-section="client">
+                        <div class="section-header">
+                            <h2><i class="fas fa-user"></i> Client Information</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="project_firstname">First Name *</label>
+                                    <input id="project_firstname" type="text" name="project-firstname" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_lastname">Last Name *</label>
+                                    <input id="project_lastname" type="text" name="project-lastname" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_email">Email *</label>
+                                    <input id="project_email" type="email" name="project-email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_mobile">Mobile</label>
+                                    <input id="project_mobile" type="tel" name="project_mobile">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="project_address">Address *</label>
+                                    <input id="project_address" type="text" name="project_address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_apartment">Apartment, Suite, etc.</label>
+                                    <input id="project_apartment" type="text" name="project_apartment">
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_city">Town/Suburb *</label>
+                                    <input id="project_city" type="text" name="project_city" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_postcode">Postcode *</label>
+                                    <input id="project_postcode" type="text" name="project_postcode" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_state">State</label>
+                                    <input id="project_state" type="text" name="project_state" value="Queensland">
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_country">Country</label>
+                                    <input id="project_country" type="text" name="project_country" value="Australia">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Company Details Section -->
+                    <section class="form-section" data-section="company">
+                        <div class="section-header">
+                            <h2><i class="fas fa-building"></i> Company Details</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="project_company">Company Name</label>
+                                    <input id="project_company" type="text" name="project-company">
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_abn">ABN</label>
+                                    <input id="project_abn" type="text" name="project-abn">
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_phone">Phone</label>
+                                    <input id="project_phone" type="tel" name="project_phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="project_fax">Fax</label>
+                                    <input id="project_fax" type="text" name="project_fax">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Service Details Section -->
+                    <section class="form-section" data-section="service">
+                        <div class="section-header">
+                            <h2><i class="fas fa-tools"></i> Service Details</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="service_type">Service Type *</label>
+                                    <select id="service_type" name="service_type" required>
+                                        <option value="">Select a service</option>
+                                        <option value="Overlay">Overlay</option>
+                                        <option value="Sealcoating">Sealcoating</option>
+                                        <option value="Pothole Repair">Pothole Repair</option>
+                                        <option value="Crack Repair">Crack Repair</option>
+                                        <option value="Linemarking">Linemarking</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control">Traffic Control Required?</label>
+                                    <select id="traffic_control" name="traffic_control">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Traffic Control Details -->
+                            <div id="traffic-control-details" class="conditional-section hidden">
+                                <h3>Traffic Control Details</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="traffic_control_hours_required">Hours Required</label>
+                                        <input id="traffic_control_hours_required" type="number" name="traffic-control-hours-required" min="0" step="0.5">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="traffic_control_workers_required">Workers Required</label>
+                                        <input id="traffic_control_workers_required" type="number" name="traffic-control-workers-required" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="waste_disposal">Waste Disposal Required?</label>
+                                <select id="waste_disposal" name="waste-disposal-required">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+
+                            <!-- Waste Disposal Details -->
+                            <div id="waste-disposal-details" class="conditional-section hidden">
+                                <h3>Waste Disposal Details</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="waste_type">Waste Type</label>
+                                        <select id="waste_type" name="waste-type">
+                                            <option value="Clean Fill">Clean Fill</option>
+                                            <option value="Dirty Fill">Dirty Fill</option>
+                                            <option value="Concrete">Concrete</option>
+                                            <option value="Dirty Concrete">Dirty Concrete</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="waste_loads">Total Loads</label>
+                                        <input id="waste_loads" type="number" name="waste-loads" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Project Details Section -->
+                    <section class="form-section" data-section="project">
+                        <div class="section-header">
+                            <h2><i class="fas fa-clipboard-list"></i> Project Details</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="quote_number">Quote Number</label>
+                                    <input id="quote_number" type="text" name="quote-number">
+                                </div>
+                                <div class="form-group">
+                                    <label for="valid_for">Valid For (Days)</label>
+                                    <input id="valid_for" type="number" name="valid-for" value="30" min="1" max="365">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profit_margin">Margin (%)</label>
+                                    <input id="profit_margin" type="number" name="profit-margin" value="40" min="0" max="100" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tax_rate">Tax Rate (%)</label>
+                                    <input id="tax_rate" type="number" name="tax_rate" value="10" min="0" max="50" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Materials Section -->
+                    <section class="form-section" data-section="materials">
+                        <div class="section-header">
+                            <h2><i class="fas fa-layer-group"></i> Materials</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <!-- Asphalt Subsection -->
+                            <div class="subsection">
+                                <h3>Asphalt</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="area">Total Area (sq m) *</label>
+                                        <input type="number" id="area" name="area" min="0" step="0.01" value="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="depth">Depth (mm) *</label>
+                                        <input type="number" id="depth" name="depth" min="0" step="1" value="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cost_per_tonne">Cost per tonne</label>
+                                        <input type="number" id="cost_per_tonne" name="cost_per_tonne" min="0" step="0.01" value="190">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="asphalt_density">Density (kg/m³)</label>
+                                        <input id="asphalt_density" name="asphalt_density" type="number" min="0" step="1" value="2400">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Foundation Subsection -->
+                            <div class="subsection">
+                                <h3>Foundation</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="base_area">Total Area (sq m)</label>
+                                        <input type="number" id="base_area" name="base_area" min="0" step="0.01" value="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="base_depth">Depth (mm)</label>
+                                        <input type="number" id="base_depth" name="base_depth" min="0" step="1" value="0">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="base_cost_per_tonne">Cost per tonne</label>
+                                        <input type="number" id="base_cost_per_tonne" name="base_cost_per_tonne" min="0" step="0.01" value="30">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="base_density">Density (kg/m³)</label>
+                                        <input id="base_density" name="base_density" type="number" min="0" step="1" value="1800">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Labor Section -->
+                    <section class="form-section" data-section="labor">
+                        <div class="section-header">
+                            <h2><i class="fas fa-users"></i> Labor</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="required_workers">Workers</label>
+                                    <input id="required_workers" type="number" name="required-workers" value="2" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="time_to_complete_job">Total Hours</label>
+                                    <input id="time_to_complete_job" type="number" name="time-to-complete-job" value="2" min="0" step="0.5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hourly_rate">Hourly Rate ($)</label>
+                                    <input id="hourly_rate" type="number" name="hourly_rate" value="30" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="superannuation">Superannuation Rate (%)</label>
+                                    <input id="superannuation" type="number" name="superannuation" value="11" min="0" max="100" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="workers_compensation">Workers Compensation (%)</label>
+                                    <input id="workers_compensation" type="number" name="workers_compensation" value="2" min="0" max="100" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="other_labor_costs">Other Costs (%)</label>
+                                    <input id="other_labor_costs" type="number" name="other-labor-costs" value="2" min="0" max="100" step="0.1">
+                                </div>
+                            </div>
+
+                            <!-- Other Labor Subsection -->
+                            <div class="subsection">
+                                <h3>Additional Labor</h3>
+                                <div class="other-labor-form">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="other_labor_type">Type</label>
+                                            <input id="other_labor_type" name="other_labor_type" type="text" placeholder="e.g., Subcontractor, Specialist">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="other_labor_est_hours">Hours</label>
+                                            <input id="other_labor_est_hours" name="other_labor_est_hours" type="number" value="0" min="0" step="0.5">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="other_labor_cost_per_hour">Cost per Hour ($)</label>
+                                            <input id="other_labor_cost_per_hour" name="other_labor_cost_per_hour" type="number" value="0" min="0" step="0.01">
+                                        </div>
+                                        <div class="form-group checkbox-group">
+                                            <label for="add_gst">
+                                                <input id="add_gst" type="checkbox" name="add_gst">
+                                                Add GST
+                                            </label>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" id="add-labor-btn" class="btn btn-success">
+                                                <i class="fas fa-plus"></i> Add Labor
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="labor-list" class="labor-list">
+                                    <!-- Labor items will be added here dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Consumables Section -->
+                    <section class="form-section" data-section="consumables">
+                        <div class="section-header">
+                            <h2><i class="fas fa-gas-pump"></i> Consumables</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="paint_required">Spray Paint (Qty)</label>
+                                    <input id="paint_required" type="number" name="paint_required" value="1" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="paint_cost">Paint Cost ($)</label>
+                                    <input id="paint_cost" type="number" name="paint_cost" value="3.99" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="petrol_required">Petrol (Litres)</label>
+                                    <input id="petrol_required" type="number" name="petrol_required" value="0" min="0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="petrol_cost">Petrol Cost ($/L)</label>
+                                    <input id="petrol_cost" type="number" name="petrol_cost" value="2" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="diesel_required">Diesel (Litres)</label>
+                                    <input id="diesel_required" type="number" name="diesel_required" value="0" min="0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="diesel_cost">Diesel Cost ($/L)</label>
+                                    <input id="diesel_cost" type="number" name="diesel_cost" value="2" min="0" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gas_required">Gas (Litres)</label>
+                                    <input id="gas_required" type="number" name="gas_required" value="0" min="0" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="gas_cost">Gas Cost ($/L)</label>
+                                    <input id="gas_cost" type="number" name="gas_cost" value="1.5" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Equipment Section -->
+                    <section class="form-section" data-section="equipment">
+                        <div class="section-header">
+                            <h2><i class="fas fa-truck"></i> Equipment Required</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="equipment-grid">
+                                <div class="form-group">
+                                    <label for="compactor_plate">Compactor Plate</label>
+                                    <input id="compactor_plate" type="number" name="compactor_plate" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="rammer_compactor">Rammer Compactor</label>
+                                    <input id="rammer_compactor" type="number" name="rammer_compactor" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="leaf_blower">Leaf Blower</label>
+                                    <input id="leaf_blower" type="number" name="leaf_blower" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="concrete_cutter">Concrete Cutter</label>
+                                    <input id="concrete_cutter" type="number" name="concrete_cutter" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="_1t_roller">1t Roller</label>
+                                    <input id="_1t_roller" type="number" name="1t_roller" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="_2t_roller">2t Roller</label>
+                                    <input id="_2t_roller" type="number" name="2t_roller" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="skidsteer">Skidsteer</label>
+                                    <input id="skidsteer" type="number" name="skidsteer" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="mr_truck">MR Truck</label>
+                                    <input id="mr_truck" type="number" name="mr_truck" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="hr_truck">HR Truck</label>
+                                    <input id="hr_truck" type="number" name="hr_truck" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="trailer">Trailer</label>
+                                    <input id="trailer" type="number" name="trailer" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="car">Car</label>
+                                    <input id="car" type="number" name="car" value="0" min="0">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Notes Section -->
+                    <section class="form-section" data-section="notes">
+                        <div class="section-header">
+                            <h2><i class="fas fa-sticky-note"></i> Notes</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="form-group">
+                                <label for="project_notes">Project Notes</label>
+                                <textarea id="project_notes" name="project_notes" rows="6" placeholder="Enter any additional notes or special requirements..."></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="form-actions">
+                        <button id="calculate_button" type="button" class="btn btn-primary btn-large">
+                            <i class="fas fa-calculator"></i> Calculate Quote
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Panel -->
+            <div id="results-panel" class="results-panel hidden">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-line"></i> Quote Results</h2>
+                    <div class="results-actions">
+                        <button id="save-quote-from-results" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save Quote
+                        </button>
+                        <button id="close-results" class="btn btn-icon">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="result" class="results-content">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Calculating...</p>
+        </div>
+    </div>
+
+    <!-- File Input for Loading Quotes -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+
+
+    <script src="scripts.js" type="text/javascript"></script>
+</body>
+</html>
