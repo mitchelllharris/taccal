@@ -20,7 +20,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://ka-f.fontawesome.com", "https://cdnjs.cloudflare.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://kit.fontawesome.com", "https://ka-f.fontawesome.com", "https://cdnjs.cloudflare.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://ka-f.fontawesome.com", "https://kit.fontawesome.com", "https://cdnjs.cloudflare.com"],
+      connectSrc: ["'self'", "http://localhost:3000", "https://ka-f.fontawesome.com", "https://kit.fontawesome.com", "https://cdnjs.cloudflare.com"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: []

@@ -21,17 +21,34 @@ class QuoteSearch {
             this.loadQuotes();
         });
 
-        // Search input
-        document.getElementById('search-input').addEventListener('input', () => {
-            this.debounce(() => {
-                this.filterQuotes();
-            }, 300);
+        // Search input with live updates
+        const debouncedFilter = this.debounce(() => {
+            this.filterQuotes();
+        }, 150);
+        
+        // Add search loading indicator
+        const searchInput = document.getElementById('search-input');
+        const searchIcon = document.querySelector('.search-icon');
+        
+        searchInput.addEventListener('input', () => {
+            // Show searching indicator
+            if (searchIcon) {
+                searchIcon.className = 'fas fa-spinner fa-spin search-icon';
+            }
+            
+            debouncedFilter();
         });
 
         // Clear search
         document.getElementById('clear-search').addEventListener('click', () => {
             document.getElementById('search-input').value = '';
             this.filterQuotes();
+            
+            // Reset search icon
+            const searchIcon = document.querySelector('.search-icon');
+            if (searchIcon) {
+                searchIcon.className = 'fas fa-search search-icon';
+            }
         });
 
         // Filter controls
@@ -239,19 +256,29 @@ class QuoteSearch {
         const dateTo = document.getElementById('date-to').value;
 
         this.filteredQuotes = this.allQuotes.filter(quote => {
-            // Enhanced search term filter
+            // Enhanced search term filter - search across all relevant fields
             const clientName = this.getClientName(quote).toLowerCase();
             const quoteNumber = (quote.projectInfo?.quoteNumber || '').toLowerCase();
             const serviceType = (quote.serviceInfo?.type || '').toLowerCase();
             const clientEmail = (quote.clientInfo?.email || '').toLowerCase();
             const clientPhone = (quote.clientInfo?.mobile || '').toLowerCase();
+            const clientAddress = (quote.clientInfo?.address || '').toLowerCase();
+            const clientCity = (quote.clientInfo?.city || '').toLowerCase();
+            const clientPostcode = (quote.clientInfo?.postcode || '').toLowerCase();
+            const clientCompany = (quote.companyInfo?.name || '').toLowerCase();
+            const clientABN = (quote.companyInfo?.abn || '').toLowerCase();
             
             const matchesSearch = !searchTerm || 
                 clientName.includes(searchTerm) ||
                 quoteNumber.includes(searchTerm) ||
                 serviceType.includes(searchTerm) ||
                 clientEmail.includes(searchTerm) ||
-                clientPhone.includes(searchTerm);
+                clientPhone.includes(searchTerm) ||
+                clientAddress.includes(searchTerm) ||
+                clientCity.includes(searchTerm) ||
+                clientPostcode.includes(searchTerm) ||
+                clientCompany.includes(searchTerm) ||
+                clientABN.includes(searchTerm);
 
             // Status filter
             const isSaved = quote.calculations && Object.keys(quote.calculations).length > 0;
@@ -272,6 +299,12 @@ class QuoteSearch {
         this.currentPage = 1;
         this.displayQuotes();
         this.updateStats();
+        
+        // Reset search icon
+        const searchIcon = document.querySelector('.search-icon');
+        if (searchIcon) {
+            searchIcon.className = 'fas fa-search search-icon';
+        }
     }
 
     getClientName(quote) {
@@ -370,6 +403,9 @@ class QuoteSearch {
                         <p class="quote-amount"><strong>Total:</strong> ${totalAmount}</p>
                         ${quote.clientInfo?.email ? `<p><strong>Email:</strong> ${quote.clientInfo.email}</p>` : ''}
                         ${quote.clientInfo?.mobile ? `<p><strong>Phone:</strong> ${quote.clientInfo.mobile}</p>` : ''}
+                        ${quote.clientInfo?.address ? `<p><strong>Address:</strong> ${quote.clientInfo.address}${quote.clientInfo?.city ? `, ${quote.clientInfo.city}` : ''}${quote.clientInfo?.postcode ? ` ${quote.clientInfo.postcode}` : ''}</p>` : ''}
+                        ${quote.companyInfo?.name ? `<p><strong>Company:</strong> ${quote.companyInfo.name}</p>` : ''}
+                        ${quote.companyInfo?.abn ? `<p><strong>ABN:</strong> ${quote.companyInfo.abn}</p>` : ''}
                     </div>
                     <div class="quote-result-actions">
                         <button class="btn btn-secondary btn-sm view-quote-btn" data-quote-id="${quote._id}" title="View Quote">
