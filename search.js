@@ -272,6 +272,12 @@ class QuoteSearch {
             const trafficControlEquipment = (quote.serviceInfo?.trafficControlEquipment || '').toLowerCase();
             const trafficControlPermits = (quote.serviceInfo?.trafficControlPermits || '').toLowerCase();
             const trafficControlWeather = (quote.serviceInfo?.trafficControlWeather || '').toLowerCase();
+            const wasteDisposalType = (quote.serviceInfo?.wasteDisposalType || '').toLowerCase();
+            const wasteDisposalMethod = (quote.serviceInfo?.wasteDisposalMethod || '').toLowerCase();
+            const wasteType = (quote.serviceInfo?.wasteType || '').toLowerCase();
+            const excavationMaterial = (quote.serviceInfo?.excavationMaterial || '').toLowerCase();
+            const excavationEquipment = (quote.serviceInfo?.excavationEquipment || '').toLowerCase();
+            const wasteDisposalNotes = (quote.serviceInfo?.wasteDisposalNotes || '').toLowerCase();
             
             const matchesSearch = !searchTerm || 
                 clientName.includes(searchTerm) ||
@@ -288,7 +294,13 @@ class QuoteSearch {
                 trafficControlNotes.includes(searchTerm) ||
                 trafficControlEquipment.includes(searchTerm) ||
                 trafficControlPermits.includes(searchTerm) ||
-                trafficControlWeather.includes(searchTerm);
+                trafficControlWeather.includes(searchTerm) ||
+                wasteDisposalType.includes(searchTerm) ||
+                wasteDisposalMethod.includes(searchTerm) ||
+                wasteType.includes(searchTerm) ||
+                excavationMaterial.includes(searchTerm) ||
+                excavationEquipment.includes(searchTerm) ||
+                wasteDisposalNotes.includes(searchTerm);
 
             // Status filter
             const isSaved = quote.calculations && Object.keys(quote.calculations).length > 0;
@@ -417,6 +429,7 @@ class QuoteSearch {
                         ${quote.companyInfo?.name ? `<p><strong>Company:</strong> ${quote.companyInfo.name}</p>` : ''}
                         ${quote.companyInfo?.abn ? `<p><strong>ABN:</strong> ${quote.companyInfo.abn}</p>` : ''}
                         ${quote.serviceInfo?.trafficControl === 'Yes' ? `<p><strong>Traffic Control:</strong> ${quote.serviceInfo.trafficControlType || 'Required'}</p>` : ''}
+                        ${quote.serviceInfo?.wasteDisposal === 'Yes' ? `<p><strong>Waste Disposal:</strong> ${quote.serviceInfo.wasteDisposalType || 'Required'}</p>` : ''}
                     </div>
                     <div class="quote-result-actions">
                         <button class="btn btn-secondary btn-sm view-quote-btn" data-quote-id="${quote._id}" title="View Quote">

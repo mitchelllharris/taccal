@@ -137,6 +137,10 @@ const QuoteSchema = new mongoose.Schema({
     profitPerSquareMeter: { type: Number, min: 0 }
   },
 
+  // Add these fields to the schema root
+  formData: { type: Object, required: true }, // Store all raw form fields and dynamic arrays
+  results: { type: Object, required: true },  // Store calculation results for preview
+
   // Metadata
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

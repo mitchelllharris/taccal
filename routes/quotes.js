@@ -93,6 +93,14 @@ router.post('/', async (req, res) => {
   try {
     const quoteData = req.body;
 
+    // Ensure formData and results are present
+    if (!quoteData.formData || !quoteData.results) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing formData or results in request body'
+      });
+    }
+
     // Check if quote number already exists
     if (quoteData.projectInfo?.quoteNumber) {
       const existingQuote = await Quote.findOne({ 
@@ -153,6 +161,14 @@ router.put('/:id', async (req, res) => {
   try {
     const quoteData = req.body;
     const quoteId = req.params.id;
+
+    // Ensure formData and results are present
+    if (!quoteData.formData || !quoteData.results) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing formData or results in request body'
+      });
+    }
 
     // Check if quote exists
     const existingQuote = await Quote.findById(quoteId);
