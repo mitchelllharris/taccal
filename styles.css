@@ -1260,3 +1260,227 @@ input[type="number"]::-webkit-inner-spin-button {
         padding: 0;
     }
 }
+
+/* --- Customer Search Dropdown --- */
+.search-container {
+  position: relative;
+}
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 100;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+}
+.search-results.active {
+  display: block;
+}
+.search-results .search-result {
+  padding: 0.75em 1em;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid #f0f0f0;
+}
+.search-results .search-result:last-child {
+  border-bottom: none;
+}
+.search-results .search-result:hover, .search-results .search-result.selected {
+  background: #f5f7fa;
+}
+.search-results .no-results {
+  color: #888;
+  padding: 0.75em 1em;
+}
+
+/* --- Customer Details Display --- */
+.customer-details-container {
+  background: #f8fafc;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-size: 0.98em;
+}
+.customer-details-container strong {
+  font-weight: 600;
+}
+
+/* --- Modal Overlay --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.hidden {
+  display: none;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  width: 100%;
+  max-width: 540px;
+  padding: 0;
+  overflow: hidden;
+  animation: modalIn 0.2s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modalIn {
+  from { transform: translateY(40px) scale(0.98); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2em 1.5em 1em 1.5em;
+  border-bottom: 1px solid #f0f0f0;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+.modal-body {
+  padding: 1.5em;
+}
+.modal-footer {
+  padding: 1em 1.5em;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5em;
+}
+@media (max-width: 600px) {
+  .modal-content {
+    max-width: 98vw;
+    padding: 0;
+  }
+  .modal-body, .modal-header, .modal-footer {
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+}
+
+/* Customer Modal Overlay: make it flex and allow scroll on overflow */
+#customer-modal.modal-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+/* Modal Content: scrollable if content overflows */
+#customer-modal .modal-content {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure modal body grows and scrolls if needed */
+#customer-modal .modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Responsive: on small screens, modal fills more of the viewport */
+@media (max-width: 600px) {
+  #customer-modal .modal-content {
+    max-width: 98vw;
+    width: 98vw;
+    max-height: 98vh;
+  }
+}
+
+/* Area Calculator Modal Styles */
+#area-calc-modal.modal-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  z-index: 1001;
+  overflow-y: auto;
+}
+#area-calc-modal .modal-content {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 420px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+}
+#area-calc-modal .modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+}
+.area-calc-list {
+  margin-top: 1em;
+}
+.area-calc-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25em 0.5em;
+  border-bottom: 1px solid #eee;
+  font-size: 0.97em;
+}
+.area-calc-entry-label {
+  font-weight: 500;
+  margin-right: 0.5em;
+}
+.area-calc-entry-actions button {
+  margin-left: 0.25em;
+}
+.area-breakdown-list {
+  margin-top: 0.25em;
+  font-size: 0.95em;
+  color: #555;
+}
+.area-breakdown-list ul {
+  margin: 0.25em 0 0 0;
+  padding-left: 1.2em;
+}
+.area-breakdown-list li {
+  margin-bottom: 0.1em;
+}
+@media (max-width: 600px) {
+  #area-calc-modal .modal-content {
+    max-width: 98vw;
+    width: 98vw;
+    max-height: 98vh;
+  }
+}

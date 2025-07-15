@@ -48,82 +48,46 @@
                             <h2><i class="fas fa-user"></i> Client Information</h2>
                             <div class="section-toggle">
                                 <i class="fas fa-chevron-down"></i>
-        </div>
-      </div>
+                            </div>
+                        </div>
                         <div class="section-content">
                             <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="project_firstname">First Name</label>
-                                    <input id="project_firstname" type="text" name="project-firstname">
-                                </div>
-                                <div class="form-group">
-                                    <label for="project_lastname">Last Name</label>
-                                    <input id="project_lastname" type="text" name="project-lastname">
-                                </div>
-                                <div class="form-group">
-                                    <label for="project_email">Email</label>
-                                    <input id="project_email" type="email" name="project-email">
-        </div>
-                                <div class="form-group">
-                                    <label for="project_mobile">Mobile</label>
-                                    <input id="project_mobile" type="tel" name="project_mobile">
-        </div>
                                 <div class="form-group full-width">
-                                    <label for="project_address">Address</label>
-                                    <input id="project_address" type="text" name="project_address">
-      </div>
-                                <div class="form-group">
-                                    <label for="project_apartment">Apartment, Suite, etc.</label>
-                                    <input id="project_apartment" type="text" name="project_apartment">
-        </div>
-                                <div class="form-group">
-                                    <label for="project_city">Town/Suburb</label>
-                                    <input id="project_city" type="text" name="project_city">
-        </div>
-                                <div class="form-group">
-                                    <label for="project_postcode">Postcode</label>
-                                    <input id="project_postcode" type="text" name="project_postcode">
-      </div>
-                                <div class="form-group">
-          <label for="project_state">State</label>
-                                    <input id="project_state" type="text" name="project_state" value="Queensland">
-        </div>
-                                <div class="form-group">
-          <label for="project_country">Country</label>
-                                    <input id="project_country" type="text" name="project_country" value="Australia">
-        </div>
-      </div>
-        </div>
-                    </section>
-
-                    <!-- Company Details Section -->
-                    <section class="form-section" data-section="company">
-                        <div class="section-header">
-                            <h2><i class="fas fa-building"></i> Company Details</h2>
-                            <div class="section-toggle">
-                                <i class="fas fa-chevron-down"></i>
-        </div>
-      </div>
-                        <div class="section-content">
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="project_company">Company Name</label>
-                                    <input id="project_company" type="text" name="project-company">
+                                    <label for="customer_search">Search for Customer</label>
+                                    <div class="search-container">
+                                        <input id="customer_search" type="text" name="customer_search" placeholder="Search by name, email, or phone...">
+                                        <div id="customer-search-results" class="search-results"></div>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="project_abn">ABN</label>
-                                    <input id="project_abn" type="text" name="project-abn">
-                                </div>
-                                <div class="form-group">
-          <label for="project_phone">Phone</label>
-                                    <input id="project_phone" type="tel" name="project_phone">
-        </div>
-                                <div class="form-group">
-          <label for="project_fax">Fax</label>
-                                    <input id="project_fax" type="text" name="project_fax">
-        </div>
-      </div>
-    </div>
+                            </div>
+                            <div id="customer-details-display" class="customer-details-container hidden">
+                                <!-- Selected customer details will be displayed here -->
+                            </div>
+                            <div class="form-group mt-4">
+                                <button type="button" id="add-new-customer-btn" class="btn btn-secondary">
+                                    <i class="fas fa-user-plus"></i> Create New Customer
+                                </button>
+                                <button type="button" id="clear-customer-btn" class="btn btn-danger hidden">
+                                    <i class="fas fa-times"></i> Clear Customer
+                                </button>
+                            </div>
+                            <!-- Hidden fields to store customer data for the quote -->
+                            <input type="hidden" id="selected_customer_id" name="selected_customer_id">
+                            <input type="hidden" id="project_firstname" name="project-firstname">
+                            <input type="hidden" id="project_lastname" name="project-lastname">
+                            <input type="hidden" id="project_email" name="project-email">
+                            <input type="hidden" id="project_mobile" name="project_mobile">
+                            <input type="hidden" id="project_address" name="project_address">
+                            <input type="hidden" id="project_apartment" name="project_apartment">
+                            <input type="hidden" id="project_city" name="project_city">
+                            <input type="hidden" id="project_postcode" name="project_postcode">
+                            <input type="hidden" id="project_state" name="project_state">
+                            <input type="hidden" id="project_country" name="project_country">
+                            <input type="hidden" id="project_company" name="project_company">
+                            <input type="hidden" id="project_abn" name="project_abn">
+                            <input type="hidden" id="project_phone" name="project_phone">
+                            <input type="hidden" id="project_fax" name="project_fax">
+                        </div>
                     </section>
 
                     <!-- Service Details Section -->
@@ -134,7 +98,7 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                         </div>
-                        <div class="section-content">
+                        <div class="section-content collapsed">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="service_type">Service Type</label>
@@ -312,223 +276,176 @@
         </div>
       </div>
 
-                            <div class="form-group">
-                                <label for="excavation_required">Excavation Required?</label>
-                                <select id="excavation_required" name="excavation-required">
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-      </div>
+                    </section>
 
-                            <!-- Excavation Details -->
-                            <div id="excavation-details" class="conditional-section hidden">
-                                <h3>Excavation Details</h3>
+                    <!-- Excavation Section (Refactored) -->
+                    <section class="form-section" data-section="excavation">
+                        <div class="section-header">
+                            <h2><i class="fas fa-dump-truck"></i> Excavation</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content collapsed">
+                            <!-- A. Equipment Setup (General) -->
+                            <div class="subsection">
+                                <h3>Equipment Setup</h3>
+                                <p class="text-sm text-secondary mb-4">Add all excavation machines to be used for this project. Assign machines globally or per excavation item.</p>
+                                <div id="excavation-equipment-list"></div>
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label for="excavation_type">Excavation Type</label>
-                                        <select id="excavation_type" name="excavation-type">
-                                            <option value="">Select excavation type</option>
-                                            <option value="General Excavation">General Excavation</option>
-                                            <option value="Foundation Work">Foundation Work</option>
-                                            <option value="Trenching">Trenching</option>
-                                            <option value="Site Preparation">Site Preparation</option>
-                                            <option value="Demolition">Demolition</option>
-                                            <option value="Landscaping">Landscaping</option>
+                                        <label for="equipment_type">Machine Type</label>
+                                        <input id="equipment_type" type="text" placeholder="e.g., 1.5t Excavator, Bobcat">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="equipment_hire_type">Hire Type</label>
+                                        <select id="equipment_hire_type">
+                                            <option value="wet">Wet Hire (with operator)</option>
+                                            <option value="dry">Dry Hire (machine only)</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="excavation_machine">Excavation Machine</label>
-                                        <select id="excavation_machine" name="excavation-machine">
-                                            <option value="">Select machine</option>
-                                            <option value="Mini Excavator (1.5t)">Mini Excavator (1.5t) - $85/hr</option>
-                                            <option value="Small Excavator (3t)">Small Excavator (3t) - $120/hr</option>
-                                            <option value="Medium Excavator (8t)">Medium Excavator (8t) - $180/hr</option>
-                                            <option value="Large Excavator (15t)">Large Excavator (15t) - $250/hr</option>
-                                            <option value="Large Excavator (20t)">Large Excavator (20t) - $300/hr</option>
-                                            <option value="Rock Breaker">Rock Breaker - $200/hr</option>
-                                            <option value="Bulldozer">Bulldozer - $220/hr</option>
-                                            <option value="Loader">Loader - $150/hr</option>
-                                            <option value="Dump Truck">Dump Truck - $120/hr</option>
-          </select>
-        </div>
+                                        <label for="equipment_hourly_rate">Hourly Rate ($/hr)</label>
+                                        <input id="equipment_hourly_rate" type="number" min="0" step="0.01" placeholder="e.g., 120">
+                                    </div>
                                     <div class="form-group">
-                                        <label for="excavation_machine_rate">Custom Hourly Rate ($/hr)</label>
-                                        <input id="excavation_machine_rate" type="number" name="excavation-machine-rate" min="0" step="0.01" placeholder="Leave empty to use default">
+                                        <label for="equipment_assign_mode">Assign To</label>
+                                        <select id="equipment_assign_mode">
+                                            <option value="all">All Excavation Items</option>
+                                            <option value="per">Assign Per Item</option>
+                                        </select>
                                     </div>
-                                    
-                                    <!-- Excavation Time Estimation -->
-                                    <div class="subsection">
-                                        <h4>Excavation Time Estimation</h4>
-                                        <p class="text-sm text-secondary mb-4">Estimate how long the excavation will take based on equipment and operational factors</p>
-                                        
-                                        <div class="form-grid">
-                                            <div class="form-group">
-                                                <label for="excavator_bucket_size">Excavator Bucket Size (m³)</label>
-                                                <input id="excavator_bucket_size" type="number" name="excavator-bucket-size" min="0" step="0.1" value="0.5" placeholder="e.g., 0.5">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="truck_capacity">Truck Capacity (m³)</label>
-                                                <input id="truck_capacity" type="number" name="truck-capacity" min="0" step="0.1" value="12" placeholder="e.g., 12">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="trucks_available">Number of Trucks Available</label>
-                                                <input id="trucks_available" type="number" name="trucks-available" min="1" value="2" placeholder="e.g., 2">
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="operation_efficiency">Operation Efficiency (%)</label>
-                                                <input id="operation_efficiency" type="number" name="operation-efficiency" min="0" max="100" step="1" value="75" placeholder="e.g., 75">
-                                                <small class="text-secondary">Accounts for breaks, positioning, and other delays</small>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="round_trip_time">Round Trip Time (minutes)</label>
-                                                <input id="round_trip_time" type="number" name="round-trip-time" min="0" step="1" value="45" placeholder="e.g., 45">
-                                                <small class="text-secondary">Time for truck to travel to disposal site and return</small>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="excavator_cycle_time">Excavator Cycle Time (minutes)</label>
-                                                <input id="excavator_cycle_time" type="number" name="excavator-cycle-time" min="0" step="0.1" value="2" placeholder="e.g., 2">
-                                                <small class="text-secondary">Average time per excavator cycle (loading, swinging, dumping)</small>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Excavation Time Summary -->
-                                        <div id="excavation-time-summary" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
-                                            <h5 class="font-semibold mb-2">Excavation Time Estimate</h5>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                <div>
-                                                    <span class="font-medium">Total Volume:</span>
-                                                    <span id="total_excavation_volume_time">0 m³</span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-medium">Excavator Cycles:</span>
-                                                    <span id="excavator_cycles">0</span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-medium">Truck Loads:</span>
-                                                    <span id="truck_loads_time">0</span>
-                                                </div>
-                                                <div>
-                                                    <span class="font-medium">Estimated Time:</span>
-                                                    <span id="estimated_excavation_time">0 hours</span>
-                                                </div>
-        </div>
-      </div>
-    </div>
-
+                                    <div class="form-group">
+                                        <button type="button" id="add-excavation-equipment" class="btn btn-success">
+                                            <i class="fas fa-plus"></i> Add Equipment
+                                        </button>
+                                    </div>
                                 </div>
+                            </div>
 
-                                                                <!-- Itemized Excavation Section -->
-                                <div class="subsection">
-                                    <h4>Excavation Items</h4>
-                                    <p class="text-sm text-secondary mb-4">Add individual excavation items for different areas, stages, or materials</p>
-                                    
-                                    <div id="excavation-items-container">
-                                        <!-- Excavation items will be added here dynamically -->
+                            <!-- B. Excavation Items (Per Task) -->
+                            <div class="subsection">
+                                <h3>Excavation Items</h3>
+                                <p class="text-sm text-secondary mb-4">Add each excavation task or stage. Assign equipment, enter area, material, depth, and disposal info. Use the 3rd party toggle if handled externally.</p>
+                                <div id="excavation-items-cards"></div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="excavation_item_description">Description</label>
+                                        <input id="excavation_item_description" type="text" placeholder="e.g., Stage 1 - Asphalt removal">
                                     </div>
-                                    
+                                    <div class="form-group">
+                                        <label for="excavation_item_area">Area (mm²)</label>
+                                        <div style="display:flex;gap:0.5em;align-items:center;">
+                                            <input id="excavation_item_area" type="number" min="0" step="1">
+                                            <button type="button" id="excavation-area-calc-btn" class="btn btn-secondary btn-sm" title="Calculate Area"><i class="fas fa-calculator"></i> Calculate Area</button>
+                                        </div>
+                                        <div id="excavation-area-breakdown" class="area-breakdown-list"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_volume">Volume (mm³)</label>
+                                        <input id="excavation_item_volume" type="number" min="0" step="1" placeholder="Enter if known (optional)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_material">Material</label>
+                                        <select id="excavation_item_material">
+                                            <option value="">Select material</option>
+                                            <option value="Grass/Turf">Grass/Turf</option>
+                                            <option value="Topsoil">Topsoil</option>
+                                            <option value="Clay">Clay</option>
+                                            <option value="Sand">Sand</option>
+                                            <option value="Gravel">Gravel</option>
+                                            <option value="CBR-45">CBR-45 Road Base</option>
+                                            <option value="CBR-80">CBR-80 Road Base</option>
+                                            <option value="Concrete">Concrete</option>
+                                            <option value="Asphalt">Asphalt</option>
+                                            <option value="Rock">Rock</option>
+                                            <option value="Mixed">Mixed Materials</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_depth">Depth (mm)</label>
+                                        <input id="excavation_item_depth" type="number" min="0" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_equipment">Assigned Equipment</label>
+                                        <select id="excavation_item_equipment">
+                                            <option value="">Select equipment</option>
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_machine_hours">Machine Hours</label>
+                                        <input id="excavation_item_machine_hours" type="number" min="0" step="0.1" placeholder="Manual or auto-calculated">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_disposal">Disposal Type</label>
+                                        <select id="excavation_item_disposal">
+                                            <option value="Reuse">Reuse On Site</option>
+                                            <option value="General">General Waste</option>
+                                            <option value="Clean Fill">Clean Fill</option>
+                                            <option value="Concrete">Concrete Waste</option>
+                                            <option value="Asphalt">Asphalt Waste</option>
+                                            <option value="Contaminated">Contaminated</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="excavation_item_tip_fee">Tip Fee ($/tonne)</label>
+                                        <input id="excavation_item_tip_fee" type="number" min="0" step="0.01" value="150">
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" id="add-excavation-item-card" class="btn btn-success">
+                                            <i class="fas fa-plus"></i> Add Excavation Item
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Mini summaries per item -->
+                                <div id="excavation-items-summary"></div>
+                                <!-- Third-party excavation items list -->
+                                <div id="third-party-items-list"></div>
+                            </div>
+
+                            <!-- Advanced Settings Toggle -->
+                            <div class="subsection">
+                                <button type="button" id="toggle-advanced-excavation" class="btn btn-secondary">
+                                    <i class="fas fa-cogs"></i> Show Advanced Settings
+                                </button>
+                                <div id="advanced-excavation-settings" class="hidden mt-4">
                                     <div class="form-grid">
                                         <div class="form-group">
-                                            <label for="new_excavation_description">Description</label>
-                                            <input id="new_excavation_description" type="text" name="new-excavation-description" placeholder="e.g., Stage 1 - Asphalt removal, Corner soft spot, Extension area">
+                                            <label for="excavator_bucket_size">Excavator Bucket Size (m³)</label>
+                                            <input id="excavator_bucket_size" type="number" min="0" step="0.1" value="0.5">
                                         </div>
                                         <div class="form-group">
-                                            <label for="new_excavation_area">Area (sq m)</label>
-                                            <input id="new_excavation_area" type="number" name="new-excavation-area" min="0" step="0.01" placeholder="e.g., 600">
+                                            <label for="truck_capacity">Truck Capacity (m³)</label>
+                                            <input id="truck_capacity" type="number" min="0" step="0.1" value="12">
                                         </div>
                                         <div class="form-group">
-                                            <label for="new_excavation_material">Material to Excavate</label>
-                                            <select id="new_excavation_material" name="new-excavation-material">
-                                                <option value="">Select material</option>
-                                                <option value="Grass/Turf">Grass/Turf (0.8 t/m³)</option>
-                                                <option value="Topsoil">Topsoil (1.2 t/m³)</option>
-                                                <option value="Clay">Clay (1.4 t/m³)</option>
-                                                <option value="Sand">Sand (1.6 t/m³)</option>
-                                                <option value="Gravel">Gravel (1.8 t/m³)</option>
-                                                <option value="CBR-45">CBR-45 Road Base (2.0 t/m³)</option>
-                                                <option value="CBR-80">CBR-80 Road Base (2.1 t/m³)</option>
-                                                <option value="Concrete">Concrete (2.4 t/m³)</option>
-                                                <option value="Asphalt">Asphalt (2.4 t/m³)</option>
-                                                <option value="Rock">Rock (2.7 t/m³)</option>
-                                                <option value="Mixed">Mixed Materials (1.8 t/m³)</option>
-                                            </select>
+                                            <label for="trucks_available">Number of Trucks Available</label>
+                                            <input id="trucks_available" type="number" min="1" value="2">
                                         </div>
                                         <div class="form-group">
-                                            <label for="new_excavation_depth">Depth (mm)</label>
-                                            <input id="new_excavation_depth" type="number" name="new-excavation-depth" min="0" step="1" placeholder="e.g., 40">
+                                            <label for="operation_efficiency">Operation Efficiency (%)</label>
+                                            <input id="operation_efficiency" type="number" min="0" max="100" step="1" value="75">
+                                            <small class="text-secondary">Accounts for breaks, positioning, and other delays</small>
                                         </div>
                                         <div class="form-group">
-                                            <label for="new_excavation_density">Material Density (t/m³)</label>
-                                            <input id="new_excavation_density" type="number" name="new-excavation-density" min="0" step="0.1" placeholder="Auto-filled based on material">
-                                            <small class="text-secondary">Can be edited if different from standard density</small>
+                                            <label for="round_trip_time">Round Trip Time (minutes)</label>
+                                            <input id="round_trip_time" type="number" min="0" step="1" value="45">
+                                            <small class="text-secondary">Time for truck to travel to disposal site and return</small>
                                         </div>
                                         <div class="form-group">
-                                            <label for="new_excavation_compaction">Compaction (%)</label>
-                                            <input id="new_excavation_compaction" type="number" name="new-excavation-compaction" min="0" step="1" value="0" placeholder="Auto-filled based on material">
-                                            <small class="text-secondary">0 = no compaction, 25 = 25% compaction (1.25×)</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="new_excavation_machine_hours">Machine Hours Required</label>
-                                            <input id="new_excavation_machine_hours" type="number" name="new-excavation-machine-hours" min="0" step="0.5" placeholder="e.g., 8">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="new_excavation_disposal">Disposal Type</label>
-                                            <select id="new_excavation_disposal" name="new-excavation-disposal">
-                                                <option value="Reuse">Reuse On Site</option>
-                                                <option value="General">General Waste</option>
-                                                <option value="Clean Fill">Clean Fill</option>
-                                                <option value="Concrete">Concrete Waste</option>
-                                                <option value="Asphalt">Asphalt Waste</option>
-                                                <option value="Contaminated">Contaminated</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group checkbox-group">
-                                            <label for="new_excavation_dirty">
-                                                <input id="new_excavation_dirty" type="checkbox" name="new-excavation-dirty">
-                                                Dirty/Contaminated Material
-                                            </label>
-                                        </div>
-                                        <div class="form-group" id="new_tip_fee_container">
-                                            <label for="new_excavation_tip_fee">Tip Fee ($/tonne)</label>
-                                            <input id="new_excavation_tip_fee" type="number" name="new-excavation-tip-fee" min="0" step="0.01" value="150" placeholder="150">
-                                            <small class="text-secondary">Not required for "Reuse On Site"</small>
-                                        </div>
-                                        <div class="form-group">
-                                            <button type="button" id="add-excavation-item" class="btn btn-success">
-                                                <i class="fas fa-plus"></i> Add Excavation Item
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Excavation Summary -->
-                                    <div id="excavation-summary" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
-                                        <h5 class="font-semibold mb-2">Excavation Summary</h5>
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                                            <div>
-                                                <span class="font-medium">Total Items:</span>
-                                                <span id="total_excavation_items">0</span>
-                                            </div>
-                                            <div>
-                                                <span class="font-medium">Total Volume:</span>
-                                                <span id="total_excavation_volume">0 m³</span>
-                                            </div>
-                                            <div>
-                                                <span class="font-medium">Total Weight:</span>
-                                                <span id="total_excavation_weight">0 tonnes</span>
-                                            </div>
-                                        </div>
-                                        <div class="mt-2">
-                                            <span class="font-medium">Disposal Breakdown:</span>
-                                            <div id="disposal_breakdown" class="mt-1 text-xs"></div>
+                                            <label for="excavator_cycle_time">Excavator Cycle Time (minutes)</label>
+                                            <input id="excavator_cycle_time" type="number" min="0" step="0.1" value="2">
+                                            <small class="text-secondary">Average time per excavator cycle (loading, swinging, dumping)</small>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                
-
-                                <div class="form-group full-width">
-                                    <label for="excavation_notes">Excavation Notes</label>
-                                    <textarea id="excavation_notes" name="excavation-notes" rows="3" placeholder="Additional notes about excavation requirements, special considerations, or specific instructions..."></textarea>
-                                </div>
+                            <!-- Excavation Summary (by item, equipment, disposal, 3rd party) -->
+                            <div id="excavation-summary" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
+                                <h5 class="font-semibold mb-2">Excavation Summary</h5>
+                                <div id="excavation-summary-content"></div>
                             </div>
                         </div>
                     </section>
@@ -575,7 +492,7 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                         </div>
-                        <div class="section-content">
+                        <div class="section-content collapsed">
                             <!-- Material Import Subsection -->
                             <div class="subsection">
                                 <h3>Material Import</h3>
@@ -604,11 +521,15 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="new_import_area">Import Area (sq m)</label>
-                                        <input id="new_import_area" type="number" name="new-import-area" min="0" step="0.01" placeholder="e.g., 100">
+                                        <div style="display:flex;gap:0.5em;align-items:center;">
+                                            <input id="new_import_area" type="number" name="new-import-area" min="0" step="0.01" placeholder="e.g., 100">
+                                            <button type="button" id="import-area-calc-btn" class="btn btn-secondary btn-sm" title="Calculate Area"><i class="fas fa-calculator"></i> Calculate Area</button>
+                                        </div>
+                                        <div id="import-area-breakdown" class="area-breakdown-list"></div>
                                     </div>
                                     <div class="form-group">
                                         <label for="new_import_depth">Import Depth (mm)</label>
-                                        <input id="new_import_depth" type="number" name="new-import-depth" min="0" step="1" placeholder="e.g., 200">
+                                        <input id="new_import_depth" type="number" name="new-import-depth" min="0" step="1" placeholder="e.g., 30">
                                     </div>
                                     <div class="form-group">
                                         <label for="new_import_volume">Volume to Import (m³)</label>
@@ -627,6 +548,10 @@
                                     <div class="form-group">
                                         <label for="new_import_cost_per_tonne">Import Material Cost ($/tonne)</label>
                                         <input id="new_import_cost_per_tonne" type="number" name="new-import-cost-per-tonne" min="0" step="0.01" value="190" placeholder="190">
+                                    </div>
+                                    <div class="form-group" id="import_tip_fee_group" style="display:none;">
+                                        <label for="new_import_tip_fee">Tip Fee ($/tonne)</label>
+                                        <input id="new_import_tip_fee" type="number" name="new-import-tip-fee" min="0" step="0.01" value="150">
                                     </div>
                                     <div class="form-group">
                                         <label for="new_import_machine_hours">Machine Hours Required</label>
@@ -698,9 +623,9 @@
                             <h2><i class="fas fa-users"></i> Labor</h2>
                             <div class="section-toggle">
                                 <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
-                        <div class="section-content">
+        </div>
+      </div>
+                        <div class="section-content collapsed">
                             <!-- Standard Labor Roles Section -->
                             <div class="subsection">
                                 <h3>Standard Labor Roles</h3>
@@ -836,7 +761,7 @@
                                 <i class="fas fa-chevron-down"></i>
         </div>
       </div>
-                        <div class="section-content">
+                        <div class="section-content collapsed">
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label for="paint_required">Spray Paint (Qty)</label>
@@ -882,7 +807,7 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
     </div>
-                        <div class="section-content">
+                        <div class="section-content collapsed">
                             <div class="equipment-grid">
                                 <div class="form-group">
         <label for="compactor_plate">Compactor Plate</label>
@@ -940,7 +865,7 @@
                                 <i class="fas fa-chevron-down"></i>
                             </div>
                         </div>
-                        <div class="section-content">
+                        <div class="section-content collapsed">
                             <div class="form-group">
                                 <label for="project_notes">Project Notes</label>
                                 <textarea id="project_notes" name="project_notes" rows="6" placeholder="Enter any additional notes or special requirements..."></textarea>
@@ -987,7 +912,118 @@
     <!-- File Input for Loading Quotes -->
     <input type="file" id="file-input" accept=".json" style="display: none;">
 
+    <!-- Add Customer Modal -->
+    <div id="customer-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="customer-modal-title">Create New Customer</h3>
+                <button id="close-customer-modal" class="btn btn-icon">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="customer-form">
+                    <input type="hidden" id="customer_id" name="customer_id">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="customer_firstname">First Name</label>
+                            <input id="customer_firstname" type="text" name="customer_firstname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_lastname">Last Name</label>
+                            <input id="customer_lastname" type="text" name="customer_lastname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_email">Email</label>
+                            <input id="customer_email" type="email" name="customer_email">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_mobile">Mobile</label>
+                            <input id="customer_mobile" type="tel" name="customer_mobile">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="customer_address">Address</label>
+                            <input id="customer_address" type="text" name="customer_address">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_apartment">Apartment, Suite, etc.</label>
+                            <input id="customer_apartment" type="text" name="customer_apartment">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_city">Town/Suburb</label>
+                            <input id="customer_city" type="text" name="customer_city">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_postcode">Postcode</label>
+                            <input id="customer_postcode" type="text" name="customer_postcode">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_state">State</label>
+                            <input id="customer_state" type="text" name="customer_state" value="Queensland">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_country">Country</label>
+                            <input id="customer_country" type="text" name="customer_country" value="Australia">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_company">Company Name</label>
+                            <input id="customer_company" type="text" name="customer_company">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_abn">ABN</label>
+                            <input id="customer_abn" type="text" name="customer_abn">
+                        </div>
+                        <div class="form-group">
+                            <label for="customer_phone">Company Phone</label>
+                            <input id="customer_phone" type="tel" name="customer_phone">
+                        </div>
+                         <div class="form-group">
+                            <label for="customer_fax">Fax</label>
+                            <input id="customer_fax" type="text" name="customer_fax">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="save-customer-btn" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Customer
+                </button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Area Calculator Modal (shared for both forms) -->
+    <div id="area-calc-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width:420px;">
+            <div class="modal-header">
+                <h3>Area Calculator</h3>
+                <button id="close-area-calc-modal" class="btn btn-icon"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="area-calc-form">
+                    <div class="form-group">
+                        <label for="area-calc-label">Label (optional)</label>
+                        <input id="area-calc-label" type="text" placeholder="e.g., Pothole 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="area-calc-length">Length (mm)</label>
+                        <input id="area-calc-length" type="number" min="0" step="1" required placeholder="e.g., 1200">
+                    </div>
+                    <div class="form-group">
+                        <label for="area-calc-width">Width (mm)</label>
+                        <input id="area-calc-width" type="number" min="0" step="1" required placeholder="e.g., 3000">
+                    </div>
+                    <button type="button" id="area-calc-add-btn" class="btn btn-success"><i class="fas fa-plus"></i> Add</button>
+                </form>
+                <div id="area-calc-list" class="area-calc-list mt-3"></div>
+                <div class="mt-2"><strong>Total Area:</strong> <span id="area-calc-total">0.00</span> m²</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="area-calc-save-btn" class="btn btn-primary">Save</button>
+                <button type="button" id="area-calc-cancel-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <script src="scripts.js" type="text/javascript"></script>
 </body>

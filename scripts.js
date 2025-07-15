@@ -8,7 +8,10 @@ class AsphaltCalculator {
         this.currentQuote = null;
         this.isCalculating = false;
         this.isViewMode = false; // Track if we are in view mode
-        
+        // New for refactored excavation
+        this.excavationEquipment = [];
+        this.excavationItemsV2 = [];
+        this.thirdPartyExcavationItems = [];
         this.init();
     }
 
@@ -24,6 +27,31 @@ class AsphaltCalculator {
         // Disable Save button initially
         const saveBtn = document.getElementById('save-quote');
         if (saveBtn) saveBtn.disabled = true;
+        // Excavation section setup
+        this.setupExcavationSection();
+        // Customer search setup
+        this.setupCustomerSearch();
+        // Area calculator setup
+        this.setupAreaCalculator();
+        // After DOMContentLoaded or in init(), add logic to show/hide the tip fee input for import materials
+        // Example: If you have a disposal type select with id 'new_import_disposal', add this:
+        const importDisposalSelect = document.getElementById('new_import_disposal');
+        const importTipFeeGroup = document.getElementById('import_tip_fee_group');
+        if (importDisposalSelect && importTipFeeGroup) {
+            importDisposalSelect.addEventListener('change', function() {
+                if (importDisposalSelect.value && importDisposalSelect.value !== 'Reuse') {
+                    importTipFeeGroup.style.display = '';
+                } else {
+                    importTipFeeGroup.style.display = 'none';
+                }
+            });
+            // Initial state
+            if (importDisposalSelect.value && importDisposalSelect.value !== 'Reuse') {
+                importTipFeeGroup.style.display = '';
+            } else {
+                importTipFeeGroup.style.display = 'none';
+            }
+        }
     }
 
     setupEventListeners() {
@@ -157,81 +185,6 @@ class AsphaltCalculator {
 
         // Setup multi-select components
         this.setupMultiSelect();
-        
-        // Setup waste disposal conditional sections
-        this.setupWasteDisposalConditionals();
-    }
-
-    setupWasteDisposalConditionals() {
-        const excavationRequired = document.getElementById('excavation_required');
-        
-        // Handle excavation toggle
-        excavationRequired.addEventListener('change', () => {
-            const excavationDetails = document.getElementById('excavation-details');
-            if (excavationRequired.value === 'Yes') {
-                excavationDetails.classList.remove('hidden');
-                // Trigger calculation of excavation materials when section is shown
-                this.calculateExcavationMaterials();
-            } else {
-                excavationDetails.classList.add('hidden');
-            }
-        });
-        
-        // Handle tip fee field visibility based on disposal type
-        const disposalTypeField = document.getElementById('new_excavation_disposal');
-        const tipFeeContainer = document.getElementById('new_tip_fee_container');
-        
-        if (disposalTypeField && tipFeeContainer) {
-            disposalTypeField.addEventListener('change', () => {
-                if (disposalTypeField.value === 'Reuse') {
-                    tipFeeContainer.classList.add('hidden');
-                } else {
-                    tipFeeContainer.classList.remove('hidden');
-                }
-            });
-        }
-        
-        // Auto-update disposal type based on material selection
-        const materialField = document.getElementById('new_layer_material');
-        const dirtyCheckbox = document.getElementById('new_layer_dirty');
-        
-        if (materialField) {
-            materialField.addEventListener('change', () => {
-                this.updateDisposalTypeBasedOnMaterial();
-            });
-        }
-        
-        if (dirtyCheckbox) {
-            dirtyCheckbox.addEventListener('change', () => {
-                this.updateDisposalTypeBasedOnMaterial();
-            });
-        }
-    }
-
-    updateDisposalTypeBasedOnMaterial() {
-        const materialField = document.getElementById('new_layer_material');
-        const disposalField = document.getElementById('new_layer_disposal');
-        const dirtyCheckbox = document.getElementById('new_layer_dirty');
-        
-        if (!materialField || !disposalField || !dirtyCheckbox) return;
-        
-        const material = materialField.value;
-        const isDirty = dirtyCheckbox.checked;
-        
-        if (material) {
-            const autoDisposalType = this.getAutoWasteType(material, isDirty);
-            disposalField.value = autoDisposalType;
-            
-            // Trigger tip fee visibility update
-            const tipFeeContainer = document.getElementById('tip_fee_container');
-            if (tipFeeContainer) {
-                if (autoDisposalType === 'Reuse') {
-                    tipFeeContainer.classList.add('hidden');
-                } else {
-                    tipFeeContainer.classList.remove('hidden');
-                }
-            }
-        }
     }
 
     setupMultiSelect() {
@@ -408,14 +361,20 @@ class AsphaltCalculator {
 
     setupSectionToggles() {
         const sectionHeaders = document.querySelectorAll('.section-header');
-        
         sectionHeaders.forEach(header => {
             header.addEventListener('click', () => {
                 const section = header.closest('.form-section');
                 const content = section.querySelector('.section-content');
-                const toggle = header.querySelector('.section-toggle');
-                
-                if (content.classList.contains('collapsed')) {
+                // Close all other sections
+                document.querySelectorAll('.form-section .section-content').forEach(sc => {
+                    if (sc !== content) sc.classList.add('collapsed');
+                });
+                document.querySelectorAll('.form-section .section-header').forEach(hd => {
+                    if (hd !== header) hd.classList.add('collapsed');
+                });
+                // Toggle this section
+                const isCollapsed = content.classList.contains('collapsed');
+                if (isCollapsed) {
                     content.classList.remove('collapsed');
                     header.classList.remove('collapsed');
                 } else {
@@ -469,14 +428,6 @@ class AsphaltCalculator {
                 field.addEventListener('change', debouncedCalc);
             }
         });
-
-        // Add job duration change handler to update UI labels
-        const jobDurationField = document.getElementById('job_duration');
-        if (jobDurationField) {
-            jobDurationField.addEventListener('input', () => {
-                this.updateHoursLabel();
-            });
-        }
 
         // Add emulsion type change handler
         const emulsionTypeField = document.getElementById('emulsion_type');
@@ -579,39 +530,68 @@ class AsphaltCalculator {
         const addImportBtn = document.getElementById('add-import-material');
         if (addImportBtn) {
             addImportBtn.addEventListener('click', () => {
-                this.addImportMaterial();
-            });
-        }
-        
-        // Handle tip fee field visibility based on disposal type
-        const disposalTypeField = document.getElementById('new_excavation_disposal');
-        const tipFeeContainer = document.getElementById('new_tip_fee_container');
-        
-        if (disposalTypeField && tipFeeContainer) {
-            disposalTypeField.addEventListener('change', () => {
-                if (disposalTypeField.value === 'Reuse') {
-                    tipFeeContainer.classList.add('hidden');
-                } else {
-                    tipFeeContainer.classList.remove('hidden');
+                const material = document.getElementById('new_import_material').value;
+                const area = parseFloat(document.getElementById('new_import_area').value) || 0;
+                // Robustly parse areaBreakdown
+                const areaInput = document.getElementById('new_import_area');
+                let areaBreakdown = [];
+                if (areaInput && areaInput.dataset && areaInput.dataset.breakdown) {
+                    try { areaBreakdown = JSON.parse(areaInput.dataset.breakdown); } catch(e) { areaBreakdown = []; }
                 }
+                const depth = parseFloat(document.getElementById('new_import_depth').value) || 0;
+                let volume = parseFloat(document.getElementById('new_import_volume').value) || 0;
+                const density = parseFloat(document.getElementById('new_import_density').value) || window.app.getMaterialDensity(material);
+                const costPerTonne = parseFloat(document.getElementById('new_import_cost_per_tonne').value) || 30;
+                const machineHours = parseFloat(document.getElementById('new_import_machine_hours').value) || 0;
+                const compactionPercent = parseFloat(document.getElementById('new_import_compaction').value) || window.app.getMaterialCompactionFactor(material);
+                const compactionFactor = 1 + (compactionPercent / 100);
+                // Validation: require (area+depth) or volume
+                if ((!area || !depth) && !volume) {
+                    window.app.showNotification('Please enter area and depth, or volume.', 'error');
+                    return;
+                }
+                // Always recalculate loose volume for all materials using compaction factor
+                let compactedVolume = area && depth ? area * (depth / 1000) : 0;
+                let looseVolume = compactedVolume * compactionFactor;
+                if (volume) {
+                    looseVolume = volume;
+                    compactedVolume = volume / compactionFactor;
+                }
+                volume = looseVolume;
+                const importItem = {
+                    id: Date.now(),
+                    material: material,
+                    area: area,
+                    areaBreakdown,
+                    depth: depth,
+                    volume: volume,
+                    density: density,
+                    costPerTonne: costPerTonne,
+                    machineHours: machineHours,
+                    compactedVolume: compactedVolume,
+                    looseVolume: looseVolume,
+                    compactionPercent: compactionPercent
+                };
+                window.app.importMaterials.push(importItem);
+                window.app.addImportMaterialToUI(importItem);
+                document.getElementById('new_import_material').value = '';
+                document.getElementById('new_import_area').value = '';
+                document.getElementById('new_import_area').dataset.breakdown = '';
+                document.getElementById('import-area-breakdown').innerHTML = '';
+                document.getElementById('new_import_depth').value = '';
+                document.getElementById('new_import_volume').value = '';
+                document.getElementById('new_import_density').value = '';
+                document.getElementById('new_import_cost_per_tonne').value = '30';
+                document.getElementById('new_import_machine_hours').value = '0';
             });
         }
-        
-        // Auto-update disposal type based on material selection
-        const materialField = document.getElementById('new_excavation_material');
-        const dirtyCheckbox = document.getElementById('new_excavation_dirty');
-        
-        if (materialField) {
-            materialField.addEventListener('change', () => {
-                this.updateDisposalTypeBasedOnMaterial();
-            });
-        }
-        
-        if (dirtyCheckbox) {
-            dirtyCheckbox.addEventListener('change', () => {
-                this.updateDisposalTypeBasedOnMaterial();
-            });
-        }
+        // --- SHOW AREA BREAKDOWN IN ITEM CARDS ---
+        // Update renderExcavationItemsCards and addImportMaterialToUI to show breakdown if present
+        const renderBreakdownHTML = function(entries) {
+            if (!entries || !entries.length) return '';
+            return '<ul>' + entries.map(e => `<li>${e.label ? e.label+': ' : ''}${e.length}m × ${e.width}m = <strong>${(e.length*e.width).toFixed(2)} m²</strong></li>`).join('') + '</ul>';
+        };
+        // ... existing code ...
     }
 
     updateEmulsionDefaults() {
@@ -643,24 +623,6 @@ class AsphaltCalculator {
             if (this.isFormValid()) {
                 this.calculateQuote(true);
             }
-        }
-    }
-
-    updateHoursLabel() {
-        const jobDurationField = document.getElementById('job_duration');
-        const hoursLabel = document.getElementById('hours_label');
-        const hoursHelp = document.getElementById('hours_help');
-        
-        if (!jobDurationField || !hoursLabel || !hoursHelp) return;
-        
-        const jobDuration = parseFloat(jobDurationField.value) || 0;
-        
-        if (jobDuration > 0) {
-            hoursLabel.textContent = '(per day)';
-            hoursHelp.textContent = 'Hours worked per day per worker';
-        } else {
-            hoursLabel.textContent = '(Total)';
-            hoursHelp.textContent = 'Total hours for the job';
         }
     }
 
@@ -1258,9 +1220,77 @@ class AsphaltCalculator {
         // Calculate traffic control costs
         const trafficControlCost = this.calculateTrafficControlCost();
         
-        // Calculate excavation costs
-        const excavationCostData = this.calculateExcavationCost();
-        const excavationCost = excavationCostData.total;
+        // --- Refactored Excavation Calculation ---
+        // Calculate per-item and per-equipment costs
+        let excavationSummary = [];
+        let equipmentHours = {};
+        let equipmentCosts = {};
+        let disposalBreakdown = {};
+        let totalExcavationCost = 0;
+        let totalDisposalCost = 0;
+        let totalThirdPartyCost = 0;
+        let totalVolume = 0;
+        let totalWeight = 0;
+        // Per-item calculations
+        this.excavationItemsV2.forEach(item => {
+            const density = this.getMaterialDensity(item.material);
+            const volume = item.area * (item.depth / 1000);
+            const weight = volume * density;
+            totalVolume += volume;
+            totalWeight += weight;
+            // Equipment assignment
+            let eq = this.excavationEquipment.find(e => e.id == item.equipmentId);
+            let machineCost = 0;
+            if (!item.isThirdParty && eq) {
+                equipmentHours[eq.type] = (equipmentHours[eq.type] || 0) + item.machineHours;
+                machineCost = item.machineHours * eq.hourlyRate;
+                equipmentCosts[eq.type] = (equipmentCosts[eq.type] || 0) + machineCost;
+                totalExcavationCost += machineCost;
+            }
+            // Disposal
+            let disposalCost = 0;
+            if (item.disposal !== 'Reuse') {
+                disposalCost = weight * item.tipFee;
+                disposalBreakdown[item.disposal] = (disposalBreakdown[item.disposal] || 0) + disposalCost;
+                totalDisposalCost += disposalCost;
+            }
+            // Summary per item
+            excavationSummary.push({
+                desc: item.desc,
+                material: item.material,
+                area: item.area,
+                depth: item.depth,
+                volume,
+                weight,
+                equipment: eq ? eq.type : (item.isThirdParty ? '3rd Party' : 'None'),
+                machineHours: item.machineHours,
+                machineCost,
+                disposal: item.disposal,
+                disposalCost,
+                isThirdParty: item.isThirdParty
+            });
+        });
+        // Third-party delivery/removal
+        this.thirdPartyExcavationItems.forEach(item => {
+            // Assume user enters total tonnes for 3rd party items in notes or elsewhere
+            // For now, just sum cost per tonne as a charge
+            totalThirdPartyCost += item.costPerTonne; // (could be extended to multiply by qty)
+        });
+        // Total cost
+        const totalExcavationSectionCost = totalExcavationCost + totalDisposalCost + totalThirdPartyCost;
+        // --- Render summary ---
+        this.renderExcavationSummary({
+            excavationSummary,
+            equipmentHours,
+            equipmentCosts,
+            disposalBreakdown,
+            totalExcavationCost,
+            totalDisposalCost,
+            totalThirdPartyCost,
+            totalExcavationSectionCost,
+            totalVolume,
+            totalWeight
+        });
         
         // Calculate standard labor cost from roles
         let totalLaborCostFromRoles = 0;
@@ -1307,7 +1337,7 @@ class AsphaltCalculator {
         
         // Calculate totals
         const totalCosts = totalLaborCost + totalLaborCostFromRoles + asphaltCost + totalOtherLaborCost + 
-                          equipmentDepreciation + consumablesCost + emulsionCost + trafficControlCost + excavationCost;
+                          equipmentDepreciation + consumablesCost + emulsionCost + trafficControlCost + totalExcavationSectionCost;
         
         // Calculate quote (subtotal before discount) using markup
         const quote = totalCosts / (1 - profitMargin / 100);
@@ -1347,8 +1377,18 @@ class AsphaltCalculator {
             equipmentDepreciation: equipmentDepreciation,
             consumablesCost: consumablesCost,
             trafficControlCost: trafficControlCost,
-            excavationCost: excavationCost,
-            excavationCostData: excavationCostData,
+            excavationCost: totalExcavationSectionCost,
+            excavationCostData: {
+                total: totalExcavationSectionCost,
+                breakdown: {
+                    machineCost: totalExcavationCost,
+                    disposalCost: totalDisposalCost,
+                    thirdPartyCost: totalThirdPartyCost,
+                    equipmentCosts,
+                    disposalBreakdown
+                },
+                items: excavationSummary
+            },
             totalCosts: totalCosts,
             quote: quote,
             discountPercent: discountPercent,
@@ -1375,6 +1415,39 @@ class AsphaltCalculator {
             totalLaborHoursFromRoles: totalLaborHoursFromRoles,
             profit: discountedSubtotal - totalCosts,
         };
+    }
+
+    renderExcavationSummary(summary) {
+        const container = document.getElementById('excavation-summary');
+        const content = document.getElementById('excavation-summary-content');
+        if (!container || !content) return;
+        container.classList.remove('hidden');
+        let html = '';
+        // Per-item summary
+        html += '<strong>Items:</strong><ul>';
+        summary.excavationSummary.forEach(item => {
+            html += `<li>${item.desc} (${item.material}, ${item.area} m² × ${item.depth}mm, ${item.weight.toFixed(2)} t) - Equipment: ${item.equipment}, Machine Hours: ${item.machineHours}, Disposal: ${item.disposal} ($${item.disposalCost.toFixed(2)})</li>`;
+        });
+        html += '</ul>';
+        // Equipment hours/costs
+        html += '<strong>Equipment Hours/Costs:</strong><ul>';
+        Object.keys(summary.equipmentHours).forEach(eq => {
+            html += `<li>${eq}: ${summary.equipmentHours[eq].toFixed(2)} hrs, $${(summary.equipmentCosts[eq] || 0).toFixed(2)}</li>`;
+        });
+        html += '</ul>';
+        // Disposal breakdown
+        html += '<strong>Disposal Breakdown:</strong><ul>';
+        Object.keys(summary.disposalBreakdown).forEach(type => {
+            html += `<li>${type}: $${summary.disposalBreakdown[type].toFixed(2)}</li>`;
+        });
+        html += '</ul>';
+        // Third-party
+        if (summary.totalThirdPartyCost > 0) {
+            html += `<strong>3rd Party Charges:</strong> $${summary.totalThirdPartyCost.toFixed(2)}`;
+        }
+        // Totals
+        html += `<div class="mt-2"><strong>Total Excavation Cost:</strong> $${summary.totalExcavationSectionCost.toFixed(2)}</div>`;
+        content.innerHTML = html;
     }
 
     calculateEquipmentDepreciation(totalDays) {
@@ -2538,9 +2611,11 @@ class AsphaltCalculator {
         let weight = importItem.volume * density;
         let truckLoads = weight / 10;
         const totalCost = weight * importItem.costPerTonne;
-        let machineHoursText = importItem.machineHours > 0 
-            ? `Machine Hours: ${importItem.machineHours} hrs`
-            : '3rd Party Delivery (no machine hours)';
+        let machineHoursText = importItem.isThirdParty
+            ? '3rd Party Delivery (no machine hours)'
+            : (importItem.machineHours > 0 
+                ? `Machine Hours: ${importItem.machineHours} hrs`
+                : '');
         let compactionNote = '';
         if (importItem.compactionPercent && importItem.compactionPercent !== 100) {
             const compactedWeight = importItem.compactedVolume * density;
@@ -2564,9 +2639,7 @@ class AsphaltCalculator {
                 ${compactionNote}
             </div>
             <div class="import-material-actions">
-                <button type="button" class="btn btn-danger btn-icon delete-import-material" data-id="${importItem.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <button type="button" class="btn btn-danger btn-icon delete-import-material" data-id="${importItem.id}"><i class="fas fa-trash"></i></button>
             </div>
         `;
         
@@ -2647,20 +2720,21 @@ class AsphaltCalculator {
     }
 
     calculateImportVolume() {
-        const importArea = parseFloat(document.getElementById('new_import_area').value) || 0;
-        const newImportMaterial = document.getElementById('new_import_material').value;
-        const newImportDepth = parseFloat(document.getElementById('new_import_depth').value) || 0;
+        const importAreaEl = document.getElementById('new_import_area');
+        const importMaterialEl = document.getElementById('new_import_material');
+        const importDepthEl = document.getElementById('new_import_depth');
         const newImportVolume = document.getElementById('new_import_volume');
-        
+        if (!importAreaEl || !importMaterialEl || !importDepthEl || !newImportVolume) return;
+        const importArea = parseFloat(importAreaEl.value) || 0;
+        const newImportMaterial = importMaterialEl.value;
+        const newImportDepth = parseFloat(importDepthEl.value) || 0;
         let calculatedVolume = 0;
         if (newImportMaterial && newImportMaterial !== 'None' && newImportDepth > 0 && importArea > 0) {
             if (newImportMaterial === 'Asphalt') {
-                // Use 25% compaction for asphalt
                 calculatedVolume = importArea * (newImportDepth / 1000) * 1.25;
             } else {
                 calculatedVolume = importArea * (newImportDepth / 1000);
             }
-            // Only auto-calculate if the volume field is empty or matches the calculated value
             if (!newImportVolume.value || Math.abs(parseFloat(newImportVolume.value) - calculatedVolume) > 0.01) {
                 newImportVolume.value = calculatedVolume.toFixed(3);
             }
@@ -2910,6 +2984,491 @@ class AsphaltCalculator {
         this.refreshImportMaterials();
         this.refreshExcavationItems();
         this.refreshLaborList();
+    }
+
+    setupExcavationSection() {
+        // Equipment
+        const addEquipmentBtn = document.getElementById('add-excavation-equipment');
+        if (addEquipmentBtn) {
+            addEquipmentBtn.addEventListener('click', () => {
+                const type = document.getElementById('equipment_type').value.trim();
+                const hireType = document.getElementById('equipment_hire_type').value;
+                const hourlyRate = parseFloat(document.getElementById('equipment_hourly_rate').value) || 0;
+                const assignMode = document.getElementById('equipment_assign_mode').value;
+                if (!type || hourlyRate <= 0) {
+                    this.showNotification('Please enter valid equipment type and hourly rate.', 'error');
+                    return;
+                }
+                this.excavationEquipment.push({
+                    id: Date.now(),
+                    type, hireType, hourlyRate, assignMode
+                });
+                this.renderExcavationEquipmentList();
+                document.getElementById('equipment_type').value = '';
+                document.getElementById('equipment_hourly_rate').value = '';
+            });
+        }
+        // Excavation Items
+        const addExcavationItemCardBtn = document.getElementById('add-excavation-item-card');
+        if (addExcavationItemCardBtn) {
+            addExcavationItemCardBtn.addEventListener('click', () => {
+                const desc = document.getElementById('excavation_item_description').value.trim();
+                const area = parseFloat(document.getElementById('excavation_item_area').value) || 0;
+                const areaBreakdown = (() => { try { return JSON.parse(document.getElementById('excavation_item_area').dataset.breakdown||'[]'); } catch(e){return [];} })();
+                const volume = parseFloat(document.getElementById('excavation_item_volume').value) || 0;
+                const material = document.getElementById('excavation_item_material').value;
+                const depth = parseFloat(document.getElementById('excavation_item_depth').value) || 0;
+                const equipmentId = document.getElementById('excavation_item_equipment').value;
+                const machineHours = parseFloat(document.getElementById('excavation_item_machine_hours').value) || 0;
+                const disposal = document.getElementById('excavation_item_disposal').value;
+                const tipFee = parseFloat(document.getElementById('excavation_item_tip_fee').value) || 0;
+                const isThirdPartyEl = document.getElementById('excavation_item_3rd_party');
+                const isThirdParty = isThirdPartyEl ? isThirdPartyEl.checked : false;
+                // Validation: require (area+depth) or volume
+                if ((!area || !depth) && !volume) {
+                    window.app.showNotification('Please enter area and depth, or volume.', 'error');
+                    return;
+                }
+                // Calculate volume
+                let finalVolume = volume;
+                if (!volume && area && depth) {
+                    finalVolume = area * (depth / 1000);
+                }
+                window.app.excavationItemsV2.push({
+                    id: Date.now(),
+                    desc, area, areaBreakdown, volume: finalVolume, material, depth, equipmentId, machineHours, disposal, tipFee, isThirdParty
+                });
+                window.app.renderExcavationItemsCards();
+                document.getElementById('excavation_item_description').value = '';
+                document.getElementById('excavation_item_area').value = '';
+                document.getElementById('excavation_item_area').dataset.breakdown = '';
+                document.getElementById('excavation-area-breakdown').innerHTML = '';
+                document.getElementById('excavation_item_volume').value = '';
+                document.getElementById('excavation_item_material').value = '';
+                document.getElementById('excavation_item_depth').value = '';
+                document.getElementById('excavation_item_equipment').value = '';
+                document.getElementById('excavation_item_machine_hours').value = '';
+                document.getElementById('excavation_item_disposal').value = 'Reuse';
+                document.getElementById('excavation_item_tip_fee').value = '150';
+                if (isThirdPartyEl) isThirdPartyEl.checked = false;
+            });
+        }
+        // Third-Party Delivery/Removal
+        const addThirdPartyBtn = document.getElementById('add-third-party-item');
+        if (addThirdPartyBtn) {
+            addThirdPartyBtn.addEventListener('click', () => {
+                const material = document.getElementById('third_party_material').value.trim();
+                const costPerTonne = parseFloat(document.getElementById('third_party_cost_per_tonne').value) || 0;
+                const notes = document.getElementById('third_party_notes').value.trim();
+                if (!material || costPerTonne <= 0) {
+                    this.showNotification('Please enter valid material and cost per tonne.', 'error');
+                    return;
+                }
+                this.thirdPartyExcavationItems.push({
+                    id: Date.now(),
+                    material, costPerTonne, notes
+                });
+                this.renderThirdPartyExcavationList();
+                document.getElementById('third_party_material').value = '';
+                document.getElementById('third_party_cost_per_tonne').value = '';
+                document.getElementById('third_party_notes').value = '';
+            });
+        }
+        // Advanced settings toggle
+        const advToggleBtn = document.getElementById('toggle-advanced-excavation');
+        if (advToggleBtn) {
+            advToggleBtn.addEventListener('click', () => {
+                const adv = document.getElementById('advanced-excavation-settings');
+                if (adv) adv.classList.toggle('hidden');
+            });
+        }
+        // Initial renders
+        this.renderExcavationEquipmentList();
+        this.renderExcavationItemsCards();
+        this.renderThirdPartyExcavationList();
+    }
+
+    renderExcavationEquipmentList() {
+        const list = document.getElementById('excavation-equipment-list');
+        list.innerHTML = '';
+        this.excavationEquipment.forEach(eq => {
+            const el = document.createElement('div');
+            el.className = 'equipment-item';
+            el.innerHTML = `<strong>${eq.type}</strong> (${eq.hireType}, $${eq.hourlyRate}/hr, Assign: ${eq.assignMode}) <button type="button" class="btn btn-danger btn-sm" data-id="${eq.id}">Remove</button>`;
+            el.querySelector('button').addEventListener('click', () => {
+                this.excavationEquipment = this.excavationEquipment.filter(e => e.id !== eq.id);
+                this.renderExcavationEquipmentList();
+            });
+            list.appendChild(el);
+        });
+        // Update equipment select for items
+        const eqSelect = document.getElementById('excavation_item_equipment');
+        if (eqSelect) {
+            eqSelect.innerHTML = '<option value="">Select equipment</option>';
+            this.excavationEquipment.forEach(eq => {
+                eqSelect.innerHTML += `<option value="${eq.id}">${eq.type} ($${eq.hourlyRate}/hr)</option>`;
+            });
+        }
+    }
+
+    renderExcavationItemsCards() {
+        const cards = document.getElementById('excavation-items-cards');
+        cards.innerHTML = '';
+        this.excavationItemsV2.forEach(item => {
+            const eq = this.excavationEquipment.find(e => e.id == item.equipmentId);
+            const card = document.createElement('div');
+            card.className = 'excavation-item-card';
+            card.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div><strong>${item.desc}</strong> (${item.material}, ${item.area ? item.area + ' m²' : ''}${item.volume ? (item.area ? ', ' : '') + item.volume.toFixed(2) + ' m³' : ''}${item.depth ? ', ' + item.depth + 'mm' : ''})</div>
+                    <button type="button" class="btn btn-danger btn-sm" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="text-sm text-secondary mt-1">
+                    ${item.isThirdParty ? '<span>3rd Party Handled</span>' : eq ? `<span>Equipment: ${eq.type} ($${eq.hourlyRate}/hr)</span>` : '<span>No equipment assigned</span>'}
+                </div>
+                <div class="text-xs mt-1">
+                    <span>Machine Hours: ${item.machineHours}</span> | <span>Disposal: ${item.disposal} @ $${item.tipFee}/t</span>
+                </div>
+                ${item.areaBreakdown && item.areaBreakdown.length ? `<div class="area-breakdown-list">${this.renderBreakdownHTML(item.areaBreakdown)}</div>` : ''}
+            `;
+            card.querySelector('button').addEventListener('click', () => {
+                this.excavationItemsV2 = this.excavationItemsV2.filter(i => i.id !== item.id);
+                this.renderExcavationItemsCards();
+            });
+            cards.appendChild(card);
+        });
+    }
+
+    renderThirdPartyExcavationList() {
+        const list = document.getElementById('third-party-items-list');
+        list.innerHTML = '';
+        this.thirdPartyExcavationItems.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'third-party-item';
+            el.innerHTML = `<strong>${item.material}</strong> @ $${item.costPerTonne}/t <span class="text-secondary">${item.notes}</span> <button type="button" class="btn btn-danger btn-sm" data-id="${item.id}">Remove</button>`;
+            el.querySelector('button').addEventListener('click', () => {
+                this.thirdPartyExcavationItems = this.thirdPartyExcavationItems.filter(i => i.id !== item.id);
+                this.renderThirdPartyExcavationList();
+            });
+            list.appendChild(el);
+        });
+    }
+
+    renderBreakdownHTML(entries) {
+        if (!entries || !entries.length) return '';
+        return '<ul>' + entries.map(e => `<li>${e.label ? e.label+': ' : ''}${e.length}mm × ${e.width}mm = <strong>${((e.length*e.width)/1000000).toFixed(2)} m²</strong></li>`).join('') + '</ul>';
+    }
+
+    // --- CUSTOMER SEARCH & CREATION LOGIC ---
+    setupCustomerSearch() {
+        const searchInput = document.getElementById('customer_search');
+        const resultsDropdown = document.getElementById('customer-search-results');
+        const detailsDisplay = document.getElementById('customer-details-display');
+        const addNewBtn = document.getElementById('add-new-customer-btn');
+        const clearBtn = document.getElementById('clear-customer-btn');
+        const modal = document.getElementById('customer-modal');
+        const closeModalBtn = document.getElementById('close-customer-modal');
+        const saveCustomerBtn = document.getElementById('save-customer-btn');
+        const customerForm = document.getElementById('customer-form');
+        let searchTimeout = null;
+        let lastSearch = '';
+        let selectedCustomer = null;
+
+        // Helper: API endpoint
+        const apiUrl = this.getApiUrl();
+
+        // Helper: Show/Hide modal
+        function showModal() {
+            modal.classList.remove('hidden');
+        }
+        function hideModal() {
+            modal.classList.add('hidden');
+            customerForm.reset();
+        }
+
+        // Helper: Render customer details
+        function renderCustomerDetails(customer) {
+            if (!customer) {
+                detailsDisplay.classList.add('hidden');
+                detailsDisplay.innerHTML = '';
+                clearBtn.classList.add('hidden');
+                return;
+            }
+            detailsDisplay.classList.remove('hidden');
+            clearBtn.classList.remove('hidden');
+            detailsDisplay.innerHTML = `
+                <div><strong>${customer.firstName} ${customer.lastName}</strong></div>
+                <div>${customer.email ? `<span><i class='fas fa-envelope'></i> ${customer.email}</span>` : ''}</div>
+                <div>${customer.mobile ? `<span><i class='fas fa-phone'></i> ${customer.mobile}</span>` : ''}</div>
+                <div>${customer.address ? `<span><i class='fas fa-map-marker-alt'></i> ${customer.address}</span>` : ''}</div>
+                <div>${customer.company ? `<span><i class='fas fa-building'></i> ${customer.company}</span>` : ''}</div>
+                <div>${customer.abn ? `<span>ABN: ${customer.abn}</span>` : ''}</div>
+            `;
+        }
+
+        // Helper: Fill hidden fields for quote
+        function fillQuoteFields(customer) {
+            document.getElementById('selected_customer_id').value = customer._id || '';
+            document.getElementById('project_firstname').value = customer.firstName || '';
+            document.getElementById('project_lastname').value = customer.lastName || '';
+            document.getElementById('project_email').value = customer.email || '';
+            document.getElementById('project_mobile').value = customer.mobile || '';
+            document.getElementById('project_address').value = customer.address || '';
+            document.getElementById('project_apartment').value = customer.apartment || '';
+            document.getElementById('project_city').value = customer.city || '';
+            document.getElementById('project_postcode').value = customer.postcode || '';
+            document.getElementById('project_state').value = customer.state || '';
+            document.getElementById('project_country').value = customer.country || '';
+            document.getElementById('project_company').value = customer.company || '';
+            document.getElementById('project_abn').value = customer.abn || '';
+            document.getElementById('project_phone').value = customer.phone || '';
+            document.getElementById('project_fax').value = customer.fax || '';
+        }
+
+        // Helper: Clear all customer fields
+        function clearCustomerFields() {
+            selectedCustomer = null;
+            renderCustomerDetails(null);
+            fillQuoteFields({});
+            searchInput.value = '';
+            resultsDropdown.innerHTML = '';
+            resultsDropdown.classList.remove('active');
+        }
+
+        // --- Search logic ---
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (searchTimeout) clearTimeout(searchTimeout);
+            if (!query) {
+                resultsDropdown.innerHTML = '';
+                resultsDropdown.classList.remove('active');
+                return;
+            }
+            searchTimeout = setTimeout(() => {
+                if (query === lastSearch) return;
+                lastSearch = query;
+                fetch(`${apiUrl}/api/customers/search?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsDropdown.innerHTML = '';
+                        if (Array.isArray(data) && data.length > 0) {
+                            data.forEach(customer => {
+                                const div = document.createElement('div');
+                                div.className = 'search-result';
+                                div.innerHTML = `<strong>${customer.firstName} ${customer.lastName}</strong> <span style='color:#888;'>${customer.email || customer.mobile || ''}</span>`;
+                                div.addEventListener('click', () => {
+                                    selectedCustomer = customer;
+                                    renderCustomerDetails(customer);
+                                    fillQuoteFields(customer);
+                                    resultsDropdown.innerHTML = '';
+                                    resultsDropdown.classList.remove('active');
+                                    searchInput.value = `${customer.firstName} ${customer.lastName}`;
+                                });
+                                resultsDropdown.appendChild(div);
+                            });
+                        } else {
+                            const noRes = document.createElement('div');
+                            noRes.className = 'search-result no-results';
+                            noRes.innerHTML = `No customer found. <span class='add-new-customer-link' style='color:#007bff;cursor:pointer;'><i class='fas fa-user-plus'></i> Create New Customer</span>`;
+                            noRes.querySelector('.add-new-customer-link').addEventListener('click', () => {
+                                showModal();
+                                resultsDropdown.innerHTML = '';
+                                resultsDropdown.classList.remove('active');
+                            });
+                            resultsDropdown.appendChild(noRes);
+                        }
+                        resultsDropdown.classList.add('active');
+                    })
+                    .catch(() => {
+                        resultsDropdown.innerHTML = '<div class="search-result no-results">Error searching customers.</div>';
+                        resultsDropdown.classList.add('active');
+                    });
+            }, 300);
+        });
+
+        // Hide dropdown on blur
+        searchInput.addEventListener('blur', () => {
+            setTimeout(() => {
+                resultsDropdown.classList.remove('active');
+            }, 200);
+        });
+
+        // Show modal on button click
+        addNewBtn.addEventListener('click', showModal);
+        // Hide modal on close
+        closeModalBtn.addEventListener('click', hideModal);
+
+        // Save new customer
+        saveCustomerBtn.addEventListener('click', () => {
+            const formData = new FormData(customerForm);
+            const customerData = {};
+            for (let [key, value] of formData.entries()) {
+                customerData[key.replace('customer_', '')] = value.trim();
+            }
+            // Basic validation
+            if (!customerData.firstname || !customerData.lastname) {
+                alert('First and last name are required.');
+                return;
+            }
+            fetch(`${apiUrl}/api/customers`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    firstName: customerData.firstname,
+                    lastName: customerData.lastname,
+                    email: customerData.email,
+                    mobile: customerData.mobile,
+                    address: customerData.address,
+                    apartment: customerData.apartment,
+                    city: customerData.city,
+                    postcode: customerData.postcode,
+                    state: customerData.state,
+                    country: customerData.country,
+                    company: customerData.company,
+                    abn: customerData.abn,
+                    phone: customerData.phone,
+                    fax: customerData.fax
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data._id) {
+                    selectedCustomer = data;
+                    renderCustomerDetails(data);
+                    fillQuoteFields(data);
+                    searchInput.value = `${data.firstName} ${data.lastName}`;
+                    hideModal();
+                } else {
+                    alert('Failed to save customer.');
+                }
+            })
+            .catch(() => {
+                alert('Failed to save customer.');
+            });
+        });
+
+        // Clear customer selection
+        clearBtn.addEventListener('click', clearCustomerFields);
+    }
+
+    setupAreaCalculator() {
+        // State
+        let areaCalcContext = null; // 'excavation' or 'import'
+        let areaCalcEntries = [];
+        let areaCalcEditIndex = null;
+        // Elements
+        const modal = document.getElementById('area-calc-modal');
+        const openExcavationBtn = document.getElementById('excavation-area-calc-btn');
+        const openImportBtn = document.getElementById('import-area-calc-btn');
+        const closeBtn = document.getElementById('close-area-calc-modal');
+        const addBtn = document.getElementById('area-calc-add-btn');
+        const saveBtn = document.getElementById('area-calc-save-btn');
+        const cancelBtn = document.getElementById('area-calc-cancel-btn');
+        const form = document.getElementById('area-calc-form');
+        const labelInput = document.getElementById('area-calc-label');
+        const lengthInput = document.getElementById('area-calc-length');
+        const widthInput = document.getElementById('area-calc-width');
+        const listDiv = document.getElementById('area-calc-list');
+        const totalSpan = document.getElementById('area-calc-total');
+        // Open modal for context
+        function openModal(context, breakdown) {
+            areaCalcContext = context;
+            areaCalcEntries = breakdown ? JSON.parse(JSON.stringify(breakdown)) : [];
+            areaCalcEditIndex = null;
+            renderList();
+            labelInput.value = '';
+            lengthInput.value = '';
+            widthInput.value = '';
+            modal.classList.remove('hidden');
+        }
+        // Close modal
+        function closeModal() {
+            modal.classList.add('hidden');
+            areaCalcContext = null;
+            areaCalcEntries = [];
+            areaCalcEditIndex = null;
+        }
+        // Render list
+        function renderList() {
+            listDiv.innerHTML = '';
+            let total = 0;
+            areaCalcEntries.forEach((entry, i) => {
+                const area = (entry.length * entry.width) / 1000000; // mm² to m²
+                total += area;
+                const div = document.createElement('div');
+                div.className = 'area-calc-entry';
+                div.innerHTML = `
+                    <span><span class="area-calc-entry-label">${entry.label ? entry.label+':' : ''}</span> ${entry.length}mm × ${entry.width}mm = <strong>${area.toFixed(2)} m²</strong></span>
+                    <span class="area-calc-entry-actions">
+                        <button type="button" class="btn btn-secondary btn-xs" data-edit="${i}"><i class="fas fa-edit"></i></button>
+                        <button type="button" class="btn btn-danger btn-xs" data-del="${i}"><i class="fas fa-trash"></i></button>
+                    </span>
+                `;
+                div.querySelector('[data-edit]').onclick = () => {
+                    areaCalcEditIndex = i;
+                    labelInput.value = entry.label || '';
+                    lengthInput.value = entry.length;
+                    widthInput.value = entry.width;
+                };
+                div.querySelector('[data-del]').onclick = () => {
+                    areaCalcEntries.splice(i,1);
+                    renderList();
+                };
+                listDiv.appendChild(div);
+            });
+            totalSpan.textContent = total.toFixed(2);
+        }
+        // Add or edit entry
+        addBtn.onclick = function(e) {
+            e.preventDefault();
+            if (!lengthInput || !widthInput) return;
+            const label = labelInput ? labelInput.value.trim() : '';
+            const length = parseFloat(lengthInput.value);
+            const width = parseFloat(widthInput.value);
+            if (!length || !width) return;
+            const entry = { label, length, width };
+            if (areaCalcEditIndex !== null) {
+                areaCalcEntries[areaCalcEditIndex] = entry;
+                areaCalcEditIndex = null;
+            } else {
+                areaCalcEntries.push(entry);
+            }
+            if (labelInput) labelInput.value = '';
+            if (lengthInput) lengthInput.value = '';
+            if (widthInput) widthInput.value = '';
+            renderList();
+        };
+        // Save
+        saveBtn.onclick = function() {
+            const total = areaCalcEntries.reduce((sum,e)=>sum+(e.length*e.width)/1000000,0); // mm² to m²
+            if (areaCalcContext === 'excavation') {
+                document.getElementById('excavation_item_area').value = total > 0 ? total.toFixed(2) : '';
+                document.getElementById('excavation-area-breakdown').innerHTML = areaCalcEntries.length ? AsphaltCalculator.prototype.renderBreakdownHTML(areaCalcEntries) : '';
+                document.getElementById('excavation_item_area').dataset.breakdown = JSON.stringify(areaCalcEntries);
+            } else if (areaCalcContext === 'import') {
+                document.getElementById('new_import_area').value = total > 0 ? total.toFixed(2) : '';
+                document.getElementById('import-area-breakdown').innerHTML = areaCalcEntries.length ? AsphaltCalculator.prototype.renderBreakdownHTML(areaCalcEntries) : '';
+                document.getElementById('new_import_area').dataset.breakdown = JSON.stringify(areaCalcEntries);
+            }
+            closeModal();
+        };
+        // Cancel/close
+        cancelBtn.onclick = closeBtn.onclick = function() { closeModal(); };
+        // Open buttons
+        if (openExcavationBtn) {
+            openExcavationBtn.onclick = function() {
+                let breakdown = [];
+                try { breakdown = JSON.parse(document.getElementById('excavation_item_area').dataset.breakdown||'[]'); } catch(e){}
+                openModal('excavation', breakdown);
+            };
+        }
+        if (openImportBtn) {
+            openImportBtn.onclick = function() {
+                let breakdown = [];
+                try { breakdown = JSON.parse(document.getElementById('new_import_area').dataset.breakdown||'[]'); } catch(e){}
+                openModal('import', breakdown);
+            };
+        }
     }
 
 }
