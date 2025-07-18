@@ -12,6 +12,11 @@ class AsphaltCalculator {
         this.excavationEquipment = [];
         this.excavationItemsV2 = [];
         this.thirdPartyExcavationItems = [];
+        this.editingImportMaterialId = null;
+        this.editingExcavationItemId = null;
+        this.editingLaborItemId = null;
+        this.editingLaborRoleId = null;
+        this.projectImages = [];
         this.init();
     }
 
@@ -52,6 +57,20 @@ class AsphaltCalculator {
                 importTipFeeGroup.style.display = 'none';
             }
         }
+        // --- MATERIAL IMPORT CANCEL BUTTON SETUP ---
+        this.addImportBtn = document.getElementById('add-import-material');
+        this.saveImportEditBtn = document.getElementById('save-import-edit-btn');
+        this.cancelImportEditBtn = document.getElementById('cancel-import-edit-btn');
+        if (this.addImportBtn) {
+            this.addImportBtn.onclick = () => this.addImportMaterial();
+        }
+        if (this.saveImportEditBtn) {
+            this.saveImportEditBtn.onclick = () => this.saveImportMaterialEdit();
+        }
+        if (this.cancelImportEditBtn) {
+            this.cancelImportEditBtn.onclick = this.resetImportFormAndEditState.bind(this);
+        }
+        this.setupProjectImagesSection();
     }
 
     setupEventListeners() {
@@ -83,6 +102,43 @@ class AsphaltCalculator {
             this.addOtherLabor();
         });
 
+        // Add labor role button
+        document.getElementById('add-labor-role-btn').addEventListener('click', () => {
+            this.addLaborRole();
+        });
+
+        // Save labor item edit button
+        const saveLaborEditBtn = document.getElementById('save-labor-edit-btn');
+        if (saveLaborEditBtn) {
+            saveLaborEditBtn.addEventListener('click', () => {
+                this.saveLaborItemEdit();
+            });
+        }
+
+        // Cancel labor item edit button
+        const cancelLaborEditBtn = document.getElementById('cancel-labor-edit-btn');
+        if (cancelLaborEditBtn) {
+            cancelLaborEditBtn.addEventListener('click', () => {
+                this.resetLaborFormAndEditState();
+            });
+        }
+
+        // Save labor role edit button
+        const saveLaborRoleEditBtn = document.getElementById('save-labor-role-edit-btn');
+        if (saveLaborRoleEditBtn) {
+            saveLaborRoleEditBtn.addEventListener('click', () => {
+                this.saveLaborRoleEdit();
+            });
+        }
+
+        // Cancel labor role edit button
+        const cancelLaborRoleEditBtn = document.getElementById('cancel-labor-role-edit-btn');
+        if (cancelLaborRoleEditBtn) {
+            cancelLaborRoleEditBtn.addEventListener('click', () => {
+                this.resetLaborRoleFormAndEditState();
+            });
+        }
+
         // File input for loading quotes
         document.getElementById('file-input').addEventListener('change', (e) => {
             this.handleFileLoad(e);
@@ -112,13 +168,7 @@ class AsphaltCalculator {
             });
         }
 
-        // Add labor role button
-        const addLaborRoleBtn = document.getElementById('add-labor-role-btn');
-        if (addLaborRoleBtn) {
-            addLaborRoleBtn.addEventListener('click', () => {
-                this.addLaborRole();
-            });
-        }
+
     }
 
     setupFormValidation() {
@@ -139,18 +189,8 @@ class AsphaltCalculator {
     }
 
     validateField(field) {
-        const value = field.value.trim();
-        const isValid = value.length > 0;
-        
-        if (!isValid) {
-            field.classList.add('error');
-            this.showFieldError(field, 'This field is required');
-        } else {
-            field.classList.remove('error');
-            this.clearFieldError(field);
-        }
-        
-        return isValid;
+        // No validation required for calculation
+        return true;
     }
 
     showFieldError(field, message) {
@@ -677,16 +717,8 @@ class AsphaltCalculator {
     }
 
     isFormValid() {
-        const requiredFields = document.querySelectorAll('[required]');
-        let isValid = true;
-        
-        requiredFields.forEach(field => {
-            if (!this.validateField(field)) {
-                isValid = false;
-            }
-        });
-        
-        return isValid;
+        // All fields are optional for calculation now
+        return true;
     }
 
     loadDefaultValues() {
@@ -890,13 +922,8 @@ class AsphaltCalculator {
         const hoursInput = document.getElementById('other_labor_est_hours');
         const costInput = document.getElementById('other_labor_cost_per_hour');
         const fixedInput = document.getElementById('other_labor_fixed_amount');
-        const addGstCheckbox = document.getElementById('add_gst');
-        
-        const type = typeInput.value.trim();
-        const addGst = addGstCheckbox.checked;
-        let laborItem = { id: Date.now(), type, pricingMethod, addGst };
-        
-        if (!type) {
+        let laborItem = { id: Date.now(), type: typeInput.value.trim(), pricingMethod };
+        if (!laborItem.type) {
             this.showNotification('Please enter a labor type.', 'error');
             return;
         }
@@ -909,7 +936,7 @@ class AsphaltCalculator {
             }
             laborItem.hours = hours;
             laborItem.cost = cost;
-        } else {
+    } else {
             const fixedAmount = parseFloat(fixedInput.value);
             if (fixedAmount <= 0) {
                 this.showNotification('Please enter a valid fixed amount.', 'error');
@@ -938,10 +965,6 @@ class AsphaltCalculator {
             laborCost = laborItem.fixedAmount;
             details = `Fixed: $${laborItem.fixedAmount}`;
         }
-        if (laborItem.addGst) {
-            laborCost *= 1.1;
-            details += ' (GST included)';
-        }
         laborItemElement.innerHTML = `
             <div class="labor-item-info">
                 <div class="font-medium">${laborItem.type}</div>
@@ -951,17 +974,121 @@ class AsphaltCalculator {
                 <div class="text-sm font-medium text-success">$${laborCost.toFixed(2)}</div>
             </div>
             <div class="labor-item-actions">
-                <button type="button" class="btn btn-danger btn-icon delete-labor-item" data-id="${laborItem.id}">
+                <button type="button" class="btn btn-secondary btn-icon edit-labor-item" data-id="${laborItem.id}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" class="btn btn-danger btn-icon delete-labor-item" data-id="${laborItem.id}" title="Delete">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         `;
         laborList.appendChild(laborItemElement);
-        // Add delete event listener
+        // Add event listeners
         const deleteBtn = laborItemElement.querySelector('.delete-labor-item');
         deleteBtn.addEventListener('click', () => {
             this.deleteLaborItem(laborItem.id);
         });
+        const editBtn = laborItemElement.querySelector('.edit-labor-item');
+        editBtn.addEventListener('click', () => {
+            this.editLaborItem(laborItem.id);
+        });
+    }
+
+    editLaborItem(id) {
+        const laborItem = this.otherLaborItems.find(item => item.id === id);
+        if (!laborItem) return;
+
+        // Store the editing state
+        this.editingLaborItemId = id;
+
+        // Populate the form with the item's data
+        document.getElementById('other_labor_type').value = laborItem.type;
+        document.getElementById('other_labor_pricing_method').value = laborItem.pricingMethod;
+        
+        if (laborItem.pricingMethod === 'hourly') {
+            document.getElementById('other_labor_est_hours').value = laborItem.hours;
+            document.getElementById('other_labor_cost_per_hour').value = laborItem.cost;
+        } else {
+            document.getElementById('other_labor_fixed_amount').value = laborItem.fixedAmount;
+        }
+        
+        this.updateOtherLaborPricingMethodUI();
+
+        // Change the add button to save button
+        const addBtn = document.getElementById('add-labor-btn');
+        const saveBtn = document.getElementById('save-labor-edit-btn');
+        const cancelBtn = document.getElementById('cancel-labor-edit-btn');
+        
+        if (addBtn) addBtn.style.display = 'none';
+        if (saveBtn) saveBtn.style.display = 'inline-block';
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
+
+        this.showNotification('Editing labor item. Make changes and click "Save Changes" or "Cancel".', 'info');
+    }
+
+    saveLaborItemEdit() {
+        if (!this.editingLaborItemId) return;
+
+        const typeInput = document.getElementById('other_labor_type');
+        const pricingMethod = document.getElementById('other_labor_pricing_method').value;
+        const hoursInput = document.getElementById('other_labor_est_hours');
+        const costInput = document.getElementById('other_labor_cost_per_hour');
+        const fixedInput = document.getElementById('other_labor_fixed_amount');
+
+        let laborItem = { 
+            id: this.editingLaborItemId, 
+            type: typeInput.value.trim(), 
+            pricingMethod 
+        };
+
+        if (!laborItem.type) {
+            this.showNotification('Please enter a labor type.', 'error');
+            return;
+        }
+
+        if (pricingMethod === 'hourly') {
+            const hours = parseFloat(hoursInput.value);
+            const cost = parseFloat(costInput.value);
+            if (hours <= 0 || cost < 0) {
+                this.showNotification('Please enter valid hours and hourly rate.', 'error');
+                return;
+            }
+            laborItem.hours = hours;
+            laborItem.cost = cost;
+        } else {
+            const fixedAmount = parseFloat(fixedInput.value);
+            if (fixedAmount <= 0) {
+                this.showNotification('Please enter a valid fixed amount.', 'error');
+                return;
+            }
+            laborItem.fixedAmount = fixedAmount;
+        }
+
+        // Update the item in the array
+        const index = this.otherLaborItems.findIndex(item => item.id === this.editingLaborItemId);
+        if (index > -1) {
+            this.otherLaborItems[index] = laborItem;
+        }
+
+        // Reset the form and UI
+        this.resetLaborFormAndEditState();
+        this.refreshLaborList();
+        this.calculateQuote(true);
+        this.showNotification('Labor item updated successfully!', 'success');
+    }
+
+    resetLaborFormAndEditState() {
+        this.editingLaborItemId = null;
+        this.clearLaborForm();
+        
+        // Reset button states
+        const addBtn = document.getElementById('add-labor-btn');
+        const saveBtn = document.getElementById('save-labor-edit-btn');
+        const cancelBtn = document.getElementById('cancel-labor-edit-btn');
+        
+        if (addBtn) addBtn.style.display = 'inline-block';
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
     }
 
     deleteLaborItem(id) {
@@ -983,7 +1110,6 @@ class AsphaltCalculator {
         document.getElementById('other_labor_est_hours').value = '0';
         document.getElementById('other_labor_cost_per_hour').value = '0';
         document.getElementById('other_labor_fixed_amount').value = '0';
-        document.getElementById('add_gst').checked = false;
         this.updateOtherLaborPricingMethodUI();
     }
 
@@ -1196,7 +1322,7 @@ class AsphaltCalculator {
         totalLaborCost = laborCost;
         
         // Calculate other labor costs
-        let totalOtherLaborCost = 0;
+    let totalOtherLaborCost = 0;
         this.otherLaborItems.forEach(item => {
             let laborCost = 0;
             if (item.pricingMethod === 'hourly') {
@@ -1204,10 +1330,7 @@ class AsphaltCalculator {
             } else {
                 laborCost = item.fixedAmount;
             }
-            if (item.addGst) {
-                laborCost *= 1.1;
-            }
-            totalOtherLaborCost += laborCost;
+      totalOtherLaborCost += laborCost;
         });
         
         // Calculate equipment depreciation
@@ -1452,17 +1575,17 @@ class AsphaltCalculator {
 
     calculateEquipmentDepreciation(totalDays) {
         const equipment = {
-            compactor_plate: { count: parseFloat(document.getElementById('compactor_plate').value) || 0, cost: 3000, residual: 200, life: 3 },
-            rammer_compactor: { count: parseFloat(document.getElementById('rammer_compactor').value) || 0, cost: 1500, residual: 200, life: 3 },
-            leaf_blower: { count: parseFloat(document.getElementById('leaf_blower').value) || 0, cost: 500, residual: 150, life: 3 },
-            concrete_cutter: { count: parseFloat(document.getElementById('concrete_cutter').value) || 0, cost: 500, residual: 150, life: 3 },
-            skidsteer: { count: parseFloat(document.getElementById('skidsteer').value) || 0, cost: 40000, residual: 10000, life: 10 },
-            mr_truck: { count: parseFloat(document.getElementById('mr_truck').value) || 0, cost: 40000, residual: 10000, life: 10 },
-            hr_truck: { count: parseFloat(document.getElementById('hr_truck').value) || 0, cost: 50000, residual: 20000, life: 10 },
-            trailer: { count: parseFloat(document.getElementById('trailer').value) || 0, cost: 3500, residual: 1000, life: 10 },
-            car: { count: parseFloat(document.getElementById('car').value) || 0, cost: 35000, residual: 1000, life: 10 },
-            _1t_roller: { count: parseFloat(document.getElementById('_1t_roller').value) || 0, cost: 25000, residual: 5000, life: 5 },
-            _2t_roller: { count: parseFloat(document.getElementById('_2t_roller').value) || 0, cost: 35000, residual: 10000, life: 5 }
+            compactor_plate: { count: parseFloat(document.getElementById('compactor_plate')?.value || 0) || 0, cost: 3000, residual: 200, life: 3 },
+            rammer_compactor: { count: parseFloat(document.getElementById('rammer_compactor')?.value || 0) || 0, cost: 1500, residual: 200, life: 3 },
+            leaf_blower: { count: parseFloat(document.getElementById('leaf_blower')?.value || 0) || 0, cost: 500, residual: 150, life: 3 },
+            concrete_cutter: { count: parseFloat(document.getElementById('concrete_cutter')?.value || 0) || 0, cost: 500, residual: 150, life: 3 },
+            skidsteer: { count: parseFloat(document.getElementById('skidsteer')?.value || 0) || 0, cost: 40000, residual: 10000, life: 10 },
+            mr_truck: { count: parseFloat(document.getElementById('mr_truck')?.value || 0) || 0, cost: 40000, residual: 10000, life: 10 },
+            hr_truck: { count: parseFloat(document.getElementById('hr_truck')?.value || 0) || 0, cost: 50000, residual: 20000, life: 10 },
+            trailer: { count: parseFloat(document.getElementById('trailer')?.value || 0) || 0, cost: 3500, residual: 1000, life: 10 },
+            car: { count: parseFloat(document.getElementById('car')?.value || 0) || 0, cost: 35000, residual: 1000, life: 10 },
+            _1t_roller: { count: parseFloat(document.getElementById('_1t_roller')?.value || 0) || 0, cost: 25000, residual: 5000, life: 5 },
+            _2t_roller: { count: parseFloat(document.getElementById('_2t_roller')?.value || 0) || 0, cost: 35000, residual: 10000, life: 5 }
         };
         
         let totalDepreciation = 0;
@@ -2013,9 +2136,9 @@ class AsphaltCalculator {
         if (projectRows) {
             projectDetailsHTML = `
                 <div class="results-container">
-                    <h3>Project Details</h3>
+        <h3>Project Details</h3>
                     <ul class="results-list">${projectRows}</ul>
-                </div>
+        </div>
             `;
         }
 
@@ -2040,7 +2163,7 @@ class AsphaltCalculator {
                         ${coverage}
                         <div>‣ Quantity: ${weight.toFixed(2)} t</div>
                         <div>‣ Cost: ${formatMoney(lineCost)}</div>
-                    </div>
+        </div>
                 `;
             }).join('');
             materialSections.push(`
@@ -2068,7 +2191,7 @@ class AsphaltCalculator {
                         <div>‣ Quantity: ${weight.toFixed(2)} t</div>
                         <div>‣ Disposal Type: ${item.disposal}</div>
                         <div>‣ Disposal Cost: ${disposalCost}</div>
-                    </div>
+      </div>
                 `;
             }).join('');
             materialSections.push(`
@@ -2082,7 +2205,7 @@ class AsphaltCalculator {
                     <div>‣ Type: ${results.emulsionType || 'N/A'}</div>
                     <div>‣ Volume: ${formatQty(results.emulsionRequired, ' L')}</div>
                     <div>‣ Cost: ${formatMoney(results.emulsionCost)}</div>
-                </div>
+    </div>
             `);
         }
         if (materialSections.length > 0) {
@@ -2090,7 +2213,7 @@ class AsphaltCalculator {
                 <div class="results-container">
                     <h3>Materials & Requirements</h3>
                     ${materialSections.join('')}
-                </div>
+      </div>
             `;
         }
 
@@ -2137,7 +2260,7 @@ class AsphaltCalculator {
                 <div class="results-container">
                     <h3>Cost Breakdown</h3>
                     <ul class="results-list">${costBreakdownLines.join('')}</ul>
-                </div>
+      </div>
             `;
         }
 
@@ -2154,7 +2277,7 @@ class AsphaltCalculator {
                 <div class="results-container">
                     <h3>Labor Role Breakdown</h3>
                     <ul class="results-list">${roleLines.join('')}</ul>
-                </div>
+    </div>
             `;
         }
 
@@ -2165,7 +2288,7 @@ class AsphaltCalculator {
                 <div class="results-container mt-6">
                     <h3>Notes</h3>
                     <p>${results.notes}</p>
-                </div>
+      </div>
             `;
         }
 
@@ -2212,7 +2335,7 @@ class AsphaltCalculator {
             <div class="notification-content">
                 <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
                 <span>${message}</span>
-            </div>
+      </div>
         `;
         
         // Add to page
@@ -2261,13 +2384,20 @@ class AsphaltCalculator {
             const url = isEditing 
                 ? `${apiUrl}/api/quotes/${this.currentQuote._id}`
                 : `${apiUrl}/api/quotes`;
-            const method = isEditing ? 'PUT' : 'POST';
+            // --- IMAGE UPLOAD LOGIC ---
+            // Use FormData for multipart upload
+            const fd = new FormData();
+            fd.append('quote', new Blob([JSON.stringify(quoteData)], { type: 'application/json' }));
+            // Attach images and comments
+            if (this.projectImages && this.projectImages.length > 0) {
+                this.projectImages.forEach((imgObj, idx) => {
+                    fd.append('images[]', imgObj.file);
+                    fd.append('imageComments[]', imgObj.comment || '');
+                });
+            }
             const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(quoteData)
+                method: isEditing ? 'PUT' : 'POST',
+                body: fd
             });
             if (!response.ok) {
                 const errorText = await response.text();
@@ -2554,6 +2684,8 @@ class AsphaltCalculator {
     addImportMaterial() {
         const material = document.getElementById('new_import_material').value;
         const area = parseFloat(document.getElementById('new_import_area').value) || 0;
+        let areaBreakdown = [];
+        try { areaBreakdown = JSON.parse(document.getElementById('new_import_area').dataset.breakdown||'[]'); } catch(e){}
         const depth = parseFloat(document.getElementById('new_import_depth').value) || 0;
         let volume = parseFloat(document.getElementById('new_import_volume').value) || 0;
         const density = parseFloat(document.getElementById('new_import_density').value) || this.getMaterialDensity(material);
@@ -2561,26 +2693,25 @@ class AsphaltCalculator {
         const machineHours = parseFloat(document.getElementById('new_import_machine_hours').value) || 0;
         const compactionPercent = parseFloat(document.getElementById('new_import_compaction').value) || this.getMaterialCompactionFactor(material);
         const compactionFactor = 1 + (compactionPercent / 100);
-
-        if (!material || material === 'None') {
-            this.showNotification('Please select a material to import.', 'error');
+        const tipFee = parseFloat(document.getElementById('new_import_tip_fee').value) || 150;
+        if ((!area || !depth) && !volume) {
+            this.showNotification('Please enter area and depth, or volume.', 'error');
             return;
         }
-
-        // Always recalculate loose volume for all materials using compaction factor
-        let compactedVolume = area * (depth / 1000);
+        let compactedVolume = area && depth ? area * (depth / 1000) : 0;
         let looseVolume = compactedVolume * compactionFactor;
-        volume = looseVolume; // override any manual entry
-
-        if (volume <= 0) {
-            this.showNotification('Please enter a valid volume to import.', 'error');
-            return;
+        if (volume) {
+            looseVolume = volume;
+            compactedVolume = volume / compactionFactor;
         }
-
+        volume = looseVolume;
+        // Force all IDs in importMaterials to be numbers
+        this.importMaterials.forEach(i => { i.id = Number(i.id); });
         const importItem = {
-            id: Date.now(),
+            id: this.editingImportMaterialId || Date.now(),
             material: material,
             area: area,
+            areaBreakdown,
             depth: depth,
             volume: volume,
             density: density,
@@ -2588,25 +2719,36 @@ class AsphaltCalculator {
             machineHours: machineHours,
             compactedVolume: compactedVolume,
             looseVolume: looseVolume,
-            compactionPercent: compactionPercent
+            compactionPercent: compactionPercent,
+            tipFee: tipFee
         };
-
-        this.importMaterials.push(importItem);
-        this.addImportMaterialToUI(importItem);
-        this.clearImportMaterialForm();
-        this.updateImportSummary();
-        this.calculateQuote(true);
-        
-        this.showNotification('Import material added successfully!', 'success');
+        // VERBOSE DEBUG
+        console.log('[DEBUG] importMaterials IDs:', this.importMaterials.map(i => i.id), 'editingImportMaterialId:', this.editingImportMaterialId);
+        if (this.editingImportMaterialId) {
+            const idx = this.importMaterials.findIndex(i => Number(i.id) === Number(this.editingImportMaterialId));
+            console.log('[DEBUG] Editing import material:', this.editingImportMaterialId, 'Found index:', idx);
+            if (idx !== -1) {
+                this.importMaterials[idx] = importItem;
+                this.showNotification('Import material updated!', 'success');
+            } else {
+                console.warn('[DEBUG] Could not find item to update! IDs:', this.importMaterials.map(i => i.id), 'Edit ID:', this.editingImportMaterialId);
+                this.showNotification('Error: Could not find item to update. See console for details.', 'error');
+                return;
+            }
+        } else {
+            this.importMaterials.push(importItem);
+            this.showNotification('Import material added successfully!', 'success');
+        }
+        console.log('[DEBUG] [AFTER UPDATE] importMaterials:', JSON.parse(JSON.stringify(this.importMaterials)));
+        this.refreshImportMaterials();
+        this.resetImportFormAndEditState();
     }
 
     addImportMaterialToUI(importItem) {
         const container = document.getElementById('import-materials-container');
-        
         const importElement = document.createElement('div');
         importElement.className = 'import-material-item';
         importElement.dataset.id = importItem.id;
-        
         const density = importItem.density || this.getMaterialDensity(importItem.material);
         let weight = importItem.volume * density;
         let truckLoads = weight / 10;
@@ -2626,29 +2768,47 @@ class AsphaltCalculator {
                 <div class="font-medium">${importItem.material}</div>
                 <div class="text-sm text-secondary">
                     ${importItem.area} m² × ${importItem.depth}mm = ${importItem.volume} m³
-                </div>
+    </div>
                 <div class="text-sm text-secondary">
                     ${importItem.volume} m³ × ${density} t/m³ = ${weight.toFixed(2)} tonnes
-                </div>
+        </div>
                 <div class="text-sm text-secondary">
                     ${truckLoads.toFixed(1)} truck loads @ $${importItem.costPerTonne}/tonne = $${totalCost.toFixed(2)}
-                </div>
+      </div>
                 <div class="text-sm text-secondary">
                     ${machineHoursText}
-                </div>
+        </div>
                 ${compactionNote}
-            </div>
+        </div>
             <div class="import-material-actions">
+                <button type="button" class="btn btn-secondary btn-icon edit-import-material" data-id="${importItem.id}"><i class="fas fa-edit"></i></button>
                 <button type="button" class="btn btn-danger btn-icon delete-import-material" data-id="${importItem.id}"><i class="fas fa-trash"></i></button>
-            </div>
+        </div>
         `;
-        
         container.appendChild(importElement);
-        
         // Add delete event listener
         const deleteBtn = importElement.querySelector('.delete-import-material');
         deleteBtn.addEventListener('click', () => {
             this.deleteImportMaterial(importItem.id);
+        });
+        // Add edit event listener
+        const editBtn = importElement.querySelector('.edit-import-material');
+        editBtn.addEventListener('click', () => {
+            this.editingImportMaterialId = Number(importItem.id);
+            document.getElementById('new_import_material').value = importItem.material;
+            document.getElementById('new_import_area').value = importItem.area;
+            document.getElementById('new_import_area').dataset.breakdown = importItem.areaBreakdown ? JSON.stringify(importItem.areaBreakdown) : '';
+            document.getElementById('import-area-breakdown').innerHTML = importItem.areaBreakdown && importItem.areaBreakdown.length ? this.renderBreakdownHTML(importItem.areaBreakdown) : '';
+            document.getElementById('new_import_depth').value = importItem.depth;
+            document.getElementById('new_import_volume').value = importItem.volume;
+            document.getElementById('new_import_density').value = importItem.density;
+            document.getElementById('new_import_cost_per_tonne').value = importItem.costPerTonne;
+            document.getElementById('new_import_machine_hours').value = importItem.machineHours;
+            document.getElementById('new_import_compaction').value = importItem.compactionPercent;
+            document.getElementById('new_import_tip_fee').value = importItem.tipFee || 150;
+            if (this.addImportBtn) this.addImportBtn.style.display = 'none';
+            if (this.saveImportEditBtn) this.saveImportEditBtn.style.display = '';
+            if (this.cancelImportEditBtn) this.cancelImportEditBtn.style.display = '';
         });
     }
 
@@ -2911,13 +3071,17 @@ class AsphaltCalculator {
                     <div class="font-medium">${role.type}</div>
                     <div class="text-sm text-secondary">${role.workers} × ${role.hours} hrs × ${role.days} days × $${role.rate}/hr${penaltyLabel ? ` × ${penaltyLabel}` : ''}</div>
                     <div class="text-sm font-medium text-success">$${cost.toFixed(2)}</div>
-                </div>
+      </div>
                 <div class="labor-item-actions">
-                    <button type="button" class="btn btn-danger btn-icon delete-labor-role" data-id="${role.id}"><i class="fas fa-trash"></i></button>
-                </div>
+                    <button type="button" class="btn btn-secondary btn-icon edit-labor-role" data-id="${role.id}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="btn btn-danger btn-icon delete-labor-role" data-id="${role.id}" title="Delete"><i class="fas fa-trash"></i></button>
+      </div>
             `;
             el.querySelector('.delete-labor-role').addEventListener('click', () => {
                 this.deleteLaborRole(role.id);
+            });
+            el.querySelector('.edit-labor-role').addEventListener('click', () => {
+                this.editLaborRole(role.id);
             });
             list.appendChild(el);
         });
@@ -2931,6 +3095,106 @@ class AsphaltCalculator {
         this.refreshLaborRoles();
         this.calculateQuote(true);
         this.showNotification('Labor role removed.', 'success');
+    }
+
+    editLaborRole(id) {
+        const role = this.laborRoles.find(r => r.id === id);
+        if (!role) return;
+
+        // Store the editing state
+        this.editingLaborRoleId = id;
+
+        // Populate the form with the role's data
+        document.getElementById('labor_role_type').value = role.type;
+        document.getElementById('labor_role_workers').value = role.workers;
+        document.getElementById('labor_role_hours').value = role.hours;
+        document.getElementById('labor_role_days').value = role.days;
+        document.getElementById('labor_role_rate').value = role.rate;
+        document.getElementById('labor_role_public_holiday').checked = role.publicHoliday;
+        document.getElementById('labor_role_sunday').checked = role.sunday;
+        document.getElementById('labor_role_saturday').checked = role.saturday;
+        document.getElementById('labor_role_after_hours').checked = role.afterHours;
+
+        // Change the add button to save button
+        const addBtn = document.getElementById('add-labor-role-btn');
+        const saveBtn = document.getElementById('save-labor-role-edit-btn');
+        const cancelBtn = document.getElementById('cancel-labor-role-edit-btn');
+        
+        if (addBtn) addBtn.style.display = 'none';
+        if (saveBtn) saveBtn.style.display = 'inline-block';
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
+
+        this.showNotification('Editing labor role. Make changes and click "Save Changes" or "Cancel".', 'info');
+    }
+
+    saveLaborRoleEdit() {
+        if (!this.editingLaborRoleId) return;
+
+        const type = document.getElementById('labor_role_type').value;
+        const workers = parseInt(document.getElementById('labor_role_workers').value) || 0;
+        const hours = parseFloat(document.getElementById('labor_role_hours').value) || 0;
+        const days = parseInt(document.getElementById('labor_role_days').value) || 1;
+        const rate = parseFloat(document.getElementById('labor_role_rate').value) || 0;
+        const publicHoliday = document.getElementById('labor_role_public_holiday').checked;
+        const sunday = document.getElementById('labor_role_sunday').checked;
+        const saturday = document.getElementById('labor_role_saturday').checked;
+        const afterHours = document.getElementById('labor_role_after_hours').checked;
+
+        if (!type || workers <= 0 || hours <= 0 || days <= 0 || rate < 0) {
+            this.showNotification('Please enter valid values for all labor role fields.', 'error');
+            return;
+        }
+
+        const role = {
+            id: this.editingLaborRoleId,
+            type,
+            workers,
+            hours,
+            days,
+            rate,
+            publicHoliday,
+            sunday,
+            saturday,
+            afterHours
+        };
+
+        // Update the role in the array
+        const index = this.laborRoles.findIndex(r => r.id === this.editingLaborRoleId);
+        if (index > -1) {
+            this.laborRoles[index] = role;
+        }
+
+        // Reset the form and UI
+        this.resetLaborRoleFormAndEditState();
+        this.refreshLaborRoles();
+        this.calculateQuote(true);
+        this.showNotification('Labor role updated successfully!', 'success');
+    }
+
+    resetLaborRoleFormAndEditState() {
+        this.editingLaborRoleId = null;
+        this.clearLaborRoleForm();
+        
+        // Reset button states
+        const addBtn = document.getElementById('add-labor-role-btn');
+        const saveBtn = document.getElementById('save-labor-role-edit-btn');
+        const cancelBtn = document.getElementById('cancel-labor-role-edit-btn');
+        
+        if (addBtn) addBtn.style.display = 'inline-block';
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'none';
+    }
+
+    clearLaborRoleForm() {
+        document.getElementById('labor_role_type').value = 'Labourer';
+        document.getElementById('labor_role_workers').value = '1';
+        document.getElementById('labor_role_hours').value = '8';
+        document.getElementById('labor_role_days').value = '1';
+        document.getElementById('labor_role_rate').value = '30';
+        document.getElementById('labor_role_public_holiday').checked = false;
+        document.getElementById('labor_role_sunday').checked = false;
+        document.getElementById('labor_role_saturday').checked = false;
+        document.getElementById('labor_role_after_hours').checked = false;
     }
 
     // Helper: Australian tax calculation for 2024–2025
@@ -3034,23 +3298,21 @@ class AsphaltCalculator {
                 if (!volume && area && depth) {
                     finalVolume = area * (depth / 1000);
                 }
-                window.app.excavationItemsV2.push({
-                    id: Date.now(),
+                const item = {
+                    id: window.app.editingExcavationItemId || Date.now(),
                     desc, area, areaBreakdown, volume: finalVolume, material, depth, equipmentId, machineHours, disposal, tipFee, isThirdParty
-                });
+                };
+                if (window.app.editingExcavationItemId) {
+                    // Update existing
+                    const idx = window.app.excavationItemsV2.findIndex(i => i.id === window.app.editingExcavationItemId);
+                    if (idx !== -1) window.app.excavationItemsV2[idx] = item;
+                    window.app.showNotification('Excavation item updated!', 'success');
+                } else {
+                    window.app.excavationItemsV2.push(item);
+                    window.app.showNotification('Excavation item added successfully!', 'success');
+                }
                 window.app.renderExcavationItemsCards();
-                document.getElementById('excavation_item_description').value = '';
-                document.getElementById('excavation_item_area').value = '';
-                document.getElementById('excavation_item_area').dataset.breakdown = '';
-                document.getElementById('excavation-area-breakdown').innerHTML = '';
-                document.getElementById('excavation_item_volume').value = '';
-                document.getElementById('excavation_item_material').value = '';
-                document.getElementById('excavation_item_depth').value = '';
-                document.getElementById('excavation_item_equipment').value = '';
-                document.getElementById('excavation_item_machine_hours').value = '';
-                document.getElementById('excavation_item_disposal').value = 'Reuse';
-                document.getElementById('excavation_item_tip_fee').value = '150';
-                if (isThirdPartyEl) isThirdPartyEl.checked = false;
+                resetExcavationFormAndEditState();
             });
         }
         // Third-Party Delivery/Removal
@@ -3121,19 +3383,40 @@ class AsphaltCalculator {
             card.innerHTML = `
                 <div class="flex justify-between items-center">
                     <div><strong>${item.desc}</strong> (${item.material}, ${item.area ? item.area + ' m²' : ''}${item.volume ? (item.area ? ', ' : '') + item.volume.toFixed(2) + ' m³' : ''}${item.depth ? ', ' + item.depth + 'mm' : ''})</div>
-                    <button type="button" class="btn btn-danger btn-sm" data-id="${item.id}"><i class="fas fa-trash"></i></button>
-                </div>
+                    <span>
+                        <button type="button" class="btn btn-secondary btn-sm edit-excavation-item" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                        <button type="button" class="btn btn-danger btn-sm" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                    </span>
+      </div>
                 <div class="text-sm text-secondary mt-1">
                     ${item.isThirdParty ? '<span>3rd Party Handled</span>' : eq ? `<span>Equipment: ${eq.type} ($${eq.hourlyRate}/hr)</span>` : '<span>No equipment assigned</span>'}
-                </div>
+    </div>
                 <div class="text-xs mt-1">
-                    <span>Machine Hours: ${item.machineHours}</span> | <span>Disposal: ${item.disposal} @ $${item.tipFee}/t</span>
+                    <span>Machine Hours: ${item.machineHours}</span> | <span>Disposal: ${item.disposal}${item.disposal === 'Reuse' ? '' : ` @ $${item.tipFee}/t`}</span>
                 </div>
                 ${item.areaBreakdown && item.areaBreakdown.length ? `<div class="area-breakdown-list">${this.renderBreakdownHTML(item.areaBreakdown)}</div>` : ''}
             `;
-            card.querySelector('button').addEventListener('click', () => {
+            card.querySelector('.btn-danger').addEventListener('click', () => {
                 this.excavationItemsV2 = this.excavationItemsV2.filter(i => i.id !== item.id);
                 this.renderExcavationItemsCards();
+            });
+            card.querySelector('.edit-excavation-item').addEventListener('click', () => {
+                this.editingExcavationItemId = item.id;
+                document.getElementById('excavation_item_description').value = item.desc;
+                document.getElementById('excavation_item_area').value = item.area;
+                document.getElementById('excavation_item_area').dataset.breakdown = item.areaBreakdown ? JSON.stringify(item.areaBreakdown) : '';
+                document.getElementById('excavation-area-breakdown').innerHTML = item.areaBreakdown && item.areaBreakdown.length ? this.renderBreakdownHTML(item.areaBreakdown) : '';
+                document.getElementById('excavation_item_volume').value = item.volume;
+                document.getElementById('excavation_item_material').value = item.material;
+                document.getElementById('excavation_item_depth').value = item.depth;
+                document.getElementById('excavation_item_equipment').value = item.equipmentId;
+                document.getElementById('excavation_item_machine_hours').value = item.machineHours;
+                document.getElementById('excavation_item_disposal').value = item.disposal;
+                document.getElementById('excavation_item_tip_fee').value = item.tipFee;
+                const isThirdPartyEl = document.getElementById('excavation_item_3rd_party');
+                if (isThirdPartyEl) isThirdPartyEl.checked = !!item.isThirdParty;
+                addExcavationItemCardBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                cancelExcavationEditBtn.style.display = '';
             });
             cards.appendChild(card);
         });
@@ -3471,6 +3754,403 @@ class AsphaltCalculator {
         }
     }
 
+    resetImportFormAndEditState() {
+        this.editingImportMaterialId = null;
+        if (this.addImportBtn) this.addImportBtn.style.display = '';
+        if (this.saveImportEditBtn) this.saveImportEditBtn.style.display = 'none';
+        if (this.cancelImportEditBtn) this.cancelImportEditBtn.style.display = 'none';
+        document.getElementById('new_import_material').value = '';
+        document.getElementById('new_import_area').value = '';
+        document.getElementById('new_import_area').dataset.breakdown = '';
+        document.getElementById('import-area-breakdown').innerHTML = '';
+        document.getElementById('new_import_depth').value = '';
+        document.getElementById('new_import_volume').value = '';
+        document.getElementById('new_import_density').value = '';
+        document.getElementById('new_import_cost_per_tonne').value = '30';
+        document.getElementById('new_import_machine_hours').value = '0';
+        document.getElementById('new_import_compaction').value = '';
+        document.getElementById('new_import_tip_fee').value = '150';
+    }
+
+    saveImportMaterialEdit() {
+        // Same logic as the edit/update part of addImportMaterial, but never adds a new item.
+        const material = document.getElementById('new_import_material').value;
+        const area = parseFloat(document.getElementById('new_import_area').value) || 0;
+        let areaBreakdown = [];
+        try { areaBreakdown = JSON.parse(document.getElementById('new_import_area').dataset.breakdown||'[]'); } catch(e){}
+        const depth = parseFloat(document.getElementById('new_import_depth').value) || 0;
+        let volume = parseFloat(document.getElementById('new_import_volume').value) || 0;
+        const density = parseFloat(document.getElementById('new_import_density').value) || this.getMaterialDensity(material);
+        const costPerTonne = parseFloat(document.getElementById('new_import_cost_per_tonne').value) || 30;
+        const machineHours = parseFloat(document.getElementById('new_import_machine_hours').value) || 0;
+        const compactionPercent = parseFloat(document.getElementById('new_import_compaction').value) || this.getMaterialCompactionFactor(material);
+        const compactionFactor = 1 + (compactionPercent / 100);
+        const tipFee = parseFloat(document.getElementById('new_import_tip_fee').value) || 150;
+        if ((!area || !depth) && !volume) {
+            this.showNotification('Please enter area and depth, or volume.', 'error');
+            return;
+        }
+        let compactedVolume = area && depth ? area * (depth / 1000) : 0;
+        let looseVolume = compactedVolume * compactionFactor;
+        if (volume) {
+            looseVolume = volume;
+            compactedVolume = volume / compactionFactor;
+        }
+        volume = looseVolume;
+        this.importMaterials.forEach(i => { i.id = Number(i.id); });
+        const importItem = {
+            id: this.editingImportMaterialId,
+            material: material,
+            area: area,
+            areaBreakdown,
+            depth: depth,
+            volume: volume,
+            density: density,
+            costPerTonne: costPerTonne,
+            machineHours: machineHours,
+            compactedVolume: compactedVolume,
+            looseVolume: looseVolume,
+            compactionPercent: compactionPercent,
+            tipFee: tipFee
+        };
+        const idx = this.importMaterials.findIndex(i => Number(i.id) === Number(this.editingImportMaterialId));
+        if (idx !== -1) {
+            this.importMaterials[idx] = importItem;
+            this.showNotification('Import material updated!', 'success');
+        } else {
+            this.showNotification('Error: Could not find item to update. See console for details.', 'error');
+            return;
+        }
+        this.refreshImportMaterials();
+        this.resetImportFormAndEditState();
+    }
+
+    setupProjectImagesSection() {
+        const imageInput = document.getElementById('project_images');
+        const previewList = document.getElementById('image-preview-list');
+        this.projectImages = [];
+        if (!imageInput || !previewList) return;
+        imageInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                // Only add if not already present (by name + size)
+                if (!this.projectImages.some(img => img.file.name === file.name && img.file.size === file.size)) {
+                    this.projectImages.push({ file, comment: '' });
+                }
+            });
+            this.renderImagePreviewList();
+            imageInput.value = '';
+        });
+        // --- Annotation Integration ---
+        let fabricCanvas = null;
+        let currentAnnotateIdx = null;
+        const annotationModal = document.getElementById('annotation-modal');
+        const annotationCanvas = document.getElementById('annotation-canvas');
+        const closeAnnotationModalBtn = document.getElementById('close-annotation-modal');
+        const saveAnnotationBtn = document.getElementById('save-annotation-btn');
+        const drawArrowBtn = document.getElementById('draw-arrow-btn');
+        const drawRectBtn = document.getElementById('draw-rect-btn');
+        const drawTextBtn = document.getElementById('draw-text-btn');
+        const drawFreehandBtn = document.getElementById('draw-freehand-btn');
+        const freehandBrushSizeInput = document.getElementById('freehand-brush-size');
+        const freehandBrushSizeValue = document.getElementById('freehand-brush-size-value');
+        const deleteObjectBtn = document.getElementById('annotation-delete-object-btn');
+        const freehandBrushColorInput = document.getElementById('freehand-brush-color');
+        const annotationTextColorInput = document.getElementById('annotation-text-color');
+        // Dedicated annotation key handler (avoid global shadowing)
+        function annotationDeleteKeyHandler(e) {
+            if (!annotationModal.classList.contains('hidden') && (e.key === 'Delete' || e.key === 'Backspace')) {
+                if (fabricCanvas) {
+                    const active = fabricCanvas.getActiveObject();
+                    if (active) {
+                        fabricCanvas.remove(active);
+                        fabricCanvas.discardActiveObject();
+                        fabricCanvas.requestRenderAll();
+                        hideDeleteBtn();
+                        e.preventDefault();
+                    }
+                }
+            }
+        }
+        // Helper: open annotation modal for image idx
+        const openAnnotationModal = (imgObj, idx) => {
+            annotationModal.classList.remove('hidden');
+            if (!fabricCanvas) {
+                fabricCanvas = new fabric.Canvas('annotation-canvas');
+            } else {
+                fabricCanvas.clear();
+                fabricCanvas.backgroundImage = null;
+            }
+            currentAnnotateIdx = idx;
+            // If annotation JSON exists, load it; otherwise, load image as background
+            if (imgObj.annotationJson) {
+                fabricCanvas.loadFromJSON(imgObj.annotationJson, () => {
+                    fabricCanvas.renderAll();
+                });
+            } else {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    fabric.Image.fromURL(ev.target.result, function(img) {
+                        // Always fit image within 600x400 and center in canvas
+                        const maxWidth = 600;
+                        const maxHeight = 400;
+                        const scaleX = maxWidth / img.width;
+                        const scaleY = maxHeight / img.height;
+                        const scale = Math.min(scaleX, scaleY, 1);
+                        const displayWidth = img.width * scale;
+                        const displayHeight = img.height * scale;
+                        const canvasWidth = annotationCanvas.width;
+                        const canvasHeight = annotationCanvas.height;
+                        const left = (canvasWidth - displayWidth) / 2;
+                        const top = (canvasHeight - displayHeight) / 2;
+                        img.set({
+                            left: left,
+                            top: top,
+                            scaleX: scale,
+                            scaleY: scale,
+                            selectable: false,
+                            evented: false
+                        });
+                        fabricCanvas.setBackgroundImage(img, fabricCanvas.renderAll.bind(fabricCanvas));
+                    });
+                };
+                reader.readAsDataURL(imgObj.file);
+            }
+            // Default to selection mode
+            fabricCanvas.isDrawingMode = false;
+            // Hide delete button initially
+            if (deleteObjectBtn) deleteObjectBtn.style.display = 'none';
+            // Listen for selection events
+            fabricCanvas.on('selection:created', showDeleteBtn);
+            fabricCanvas.on('selection:updated', showDeleteBtn);
+            fabricCanvas.on('selection:cleared', hideDeleteBtn);
+            // Listen for delete button click
+            if (deleteObjectBtn) {
+                deleteObjectBtn.onclick = function() {
+                    const active = fabricCanvas.getActiveObject();
+                    if (active) {
+                        fabricCanvas.remove(active);
+                        fabricCanvas.discardActiveObject();
+                        fabricCanvas.requestRenderAll();
+                        hideDeleteBtn();
+                    }
+                };
+            }
+            // Register annotation-specific keydown event
+            document.addEventListener('keydown', annotationDeleteKeyHandler);
+        };
+        // Helper to show/hide delete button
+        function showDeleteBtn() {
+            const active = fabricCanvas.getActiveObject();
+            if (active && deleteObjectBtn && annotationModal.classList.contains('hidden') === false) {
+                // Use the object's transform box top-right corner (oCoords.tr)
+                if (active.oCoords && active.oCoords.tr) {
+                    const tr = active.oCoords.tr;
+                    // Canvas element and its position
+                    const canvasEl = fabricCanvas.getElement();
+                    // Find the modal body (relative parent)
+                    const modalBody = annotationModal.querySelector('.modal-body');
+                    const modalBodyRect = modalBody.getBoundingClientRect();
+                    const canvasRect = canvasEl.getBoundingClientRect();
+                    // Calculate offset of canvas within modal body
+                    const offsetLeft = canvasRect.left - modalBodyRect.left;
+                    const offsetTop = canvasRect.top - modalBodyRect.top;
+                    // Calculate scale factors between canvas internal size and displayed size
+                    const scaleX = canvasRect.width / canvasEl.width;
+                    const scaleY = canvasRect.height / canvasEl.height;
+                    // Place button just to the right of the top-right handle, vertically centered with the handle
+                    const btnSize = 32; // px, matches .annotation-delete-btn
+                    const offset = 4; // px, gap between handle and button
+                    let btnLeft = offsetLeft + tr.x * scaleX + offset;
+                    let btnTop = offsetTop + tr.y * scaleY - btnSize / 2;
+                    // Clamp to canvas area (keep button visible)
+                    btnLeft = Math.min(offsetLeft + canvasRect.width - btnSize, Math.max(offsetLeft, btnLeft));
+                    btnTop = Math.min(offsetTop + canvasRect.height - btnSize, Math.max(offsetTop, btnTop));
+                    // Set button position relative to modal body
+                    deleteObjectBtn.style.display = 'block';
+                    deleteObjectBtn.style.position = 'absolute';
+                    deleteObjectBtn.style.left = btnLeft + 'px';
+                    deleteObjectBtn.style.top = btnTop + 'px';
+                    deleteObjectBtn.style.zIndex = 1002;
+                } else {
+                    // Fallback: use bounding box as before
+                    const rect = active.getBoundingRect();
+                    const canvasEl = fabricCanvas.getElement();
+                    const modalBody = annotationModal.querySelector('.modal-body');
+                    const modalBodyRect = modalBody.getBoundingClientRect();
+                    const canvasRect = canvasEl.getBoundingClientRect();
+                    const offsetLeft = canvasRect.left - modalBodyRect.left;
+                    const offsetTop = canvasRect.top - modalBodyRect.top;
+                    const scaleX = canvasRect.width / canvasEl.width;
+                    const scaleY = canvasRect.height / canvasEl.height;
+                    const btnSize = 32;
+                    const offset = 4;
+                    let btnLeft = offsetLeft + (rect.left + rect.width) * scaleX + offset;
+                    let btnTop = offsetTop + rect.top * scaleY - btnSize / 2;
+                    btnLeft = Math.min(offsetLeft + canvasRect.width - btnSize, Math.max(offsetLeft, btnLeft));
+                    btnTop = Math.min(offsetTop + canvasRect.height - btnSize, Math.max(offsetTop, btnTop));
+                    deleteObjectBtn.style.display = 'block';
+                    deleteObjectBtn.style.position = 'absolute';
+                    deleteObjectBtn.style.left = btnLeft + 'px';
+                    deleteObjectBtn.style.top = btnTop + 'px';
+                    deleteObjectBtn.style.zIndex = 1002;
+                }
+            }
+        }
+        function hideDeleteBtn() {
+            if (deleteObjectBtn) deleteObjectBtn.style.display = 'none';
+        }
+        // Also reposition button when object is moved/scaled/rotated
+        function updateDeleteBtnOnObjectChange() {
+            if (deleteObjectBtn && deleteObjectBtn.style.display === 'block') {
+                showDeleteBtn();
+            }
+        }
+        if (fabricCanvas) {
+            fabricCanvas.on('object:moving', updateDeleteBtnOnObjectChange);
+            fabricCanvas.on('object:scaling', updateDeleteBtnOnObjectChange);
+            fabricCanvas.on('object:rotating', updateDeleteBtnOnObjectChange);
+        }
+        // Close modal
+        if (closeAnnotationModalBtn) closeAnnotationModalBtn.onclick = function() {
+            annotationModal.classList.add('hidden');
+            if (fabricCanvas) {
+                fabricCanvas.clear();
+                fabricCanvas.backgroundImage = null;
+            }
+            // Remove event listeners to avoid duplicates
+            if (fabricCanvas) {
+                fabricCanvas.off('selection:created', showDeleteBtn);
+                fabricCanvas.off('selection:updated', showDeleteBtn);
+                fabricCanvas.off('selection:cleared', hideDeleteBtn);
+            }
+            document.removeEventListener('keydown', annotationDeleteKeyHandler);
+            hideDeleteBtn();
+        };
+        // Save annotation
+        if (saveAnnotationBtn) saveAnnotationBtn.onclick = () => {
+            if (!fabricCanvas) return;
+            if (currentAnnotateIdx !== null) {
+                const name = this.projectImages[currentAnnotateIdx].file.name.replace(/(\.[^.]+)?$/, '_annotated.png');
+                // Save annotation JSON
+                const annotationJson = fabricCanvas.toJSON();
+                fabricCanvas.getElement().toBlob(blob => {
+                    if (blob) {
+                        const annotatedFile = new File([blob], name, { type: 'image/png' });
+                        // If the current image is already an annotation (has annotationJson), update it in place
+                        if (this.projectImages[currentAnnotateIdx].annotationJson) {
+                            this.projectImages[currentAnnotateIdx].file = annotatedFile;
+                            this.projectImages[currentAnnotateIdx].annotationJson = annotationJson;
+                            this.projectImages[currentAnnotateIdx].comment = 'Annotated image';
+                        } else {
+                            // Otherwise, add a new annotated image
+                            this.projectImages.push({ file: annotatedFile, comment: 'Annotated image', annotationJson });
+                        }
+                        this.renderImagePreviewList();
+                        annotationModal.classList.add('hidden');
+                        if (fabricCanvas) {
+                            fabricCanvas.clear();
+                            fabricCanvas.backgroundImage = null;
+                        }
+                    }
+                }, 'image/png');
+            }
+        };
+        // Drawing tools
+        if (drawRectBtn) drawRectBtn.onclick = () => {
+            fabricCanvas.isDrawingMode = false;
+            const rect = new fabric.Rect({
+                left: 100, top: 100, width: 120, height: 80, fill: 'rgba(255,255,0,0.2)', stroke: 'red', strokeWidth: 2 });
+            fabricCanvas.add(rect);
+        };
+        if (drawTextBtn) drawTextBtn.onclick = () => {
+            fabricCanvas.isDrawingMode = false;
+            // Use the selected text color for new text
+            let color = annotationTextColorInput ? annotationTextColorInput.value : '#000000';
+            const text = new fabric.IText('Text', { left: 150, top: 150, fill: color, fontSize: 24 });
+            fabricCanvas.add(text);
+        };
+        // Update selected text color when color picker changes
+        if (annotationTextColorInput) {
+            annotationTextColorInput.addEventListener('input', () => {
+                if (fabricCanvas) {
+                    const active = fabricCanvas.getActiveObject();
+                    if (active && active.type === 'i-text') {
+                        active.set('fill', annotationTextColorInput.value);
+                        fabricCanvas.requestRenderAll();
+                    }
+                }
+            });
+        }
+        if (drawFreehandBtn) drawFreehandBtn.onclick = () => {
+            fabricCanvas.isDrawingMode = true;
+            // Set brush size to slider value
+            if (fabricCanvas.freeDrawingBrush && freehandBrushSizeInput) {
+                fabricCanvas.freeDrawingBrush.width = parseInt(freehandBrushSizeInput.value, 10) || 5;
+            }
+            // Set brush color to color picker value
+            if (fabricCanvas.freeDrawingBrush && freehandBrushColorInput) {
+                fabricCanvas.freeDrawingBrush.color = freehandBrushColorInput.value || '#000000';
+            }
+        };
+        // Update brush size when slider changes
+        if (freehandBrushSizeInput && freehandBrushSizeValue) {
+            freehandBrushSizeInput.addEventListener('input', () => {
+                freehandBrushSizeValue.textContent = freehandBrushSizeInput.value;
+                if (fabricCanvas && fabricCanvas.freeDrawingBrush) {
+                    fabricCanvas.freeDrawingBrush.width = parseInt(freehandBrushSizeInput.value, 10) || 5;
+                }
+            });
+        }
+        // Update brush color when color picker changes
+        if (freehandBrushColorInput) {
+            freehandBrushColorInput.addEventListener('input', () => {
+                if (fabricCanvas && fabricCanvas.freeDrawingBrush) {
+                    fabricCanvas.freeDrawingBrush.color = freehandBrushColorInput.value || '#000000';
+                }
+            });
+        }
+        if (drawArrowBtn) drawArrowBtn.onclick = () => {
+            fabricCanvas.isDrawingMode = false;
+            // Draw a simple arrow (line + triangle)
+            const line = new fabric.Line([200, 200, 300, 200], { stroke: 'green', strokeWidth: 4 });
+            const triangle = new fabric.Triangle({ left: 295, top: 190, width: 20, height: 20, angle: 90, fill: 'green' });
+            const group = new fabric.Group([line, triangle], { left: 200, top: 200 });
+            fabricCanvas.add(group);
+        };
+        // Render preview list with annotate button
+        this.renderImagePreviewList = () => {
+            previewList.innerHTML = '';
+            this.projectImages.forEach((imgObj, idx) => {
+                const reader = new FileReader();
+                const wrapper = document.createElement('div');
+                wrapper.className = 'image-preview-item';
+                reader.onload = (ev) => {
+                    wrapper.innerHTML = `
+                        <div class="image-thumb-wrapper">
+                            <img src="${ev.target.result}" class="image-thumb" alt="Image Preview">
+                        </div>
+                        <textarea class="image-comment" placeholder="Add a comment (optional)">${imgObj.comment || ''}</textarea>
+                        <button type="button" class="btn btn-secondary btn-xs annotate-image-btn">${imgObj.annotationJson ? 'Edit Annotation' : 'Annotate'}</button>
+                        <button type="button" class="btn btn-danger btn-xs remove-image-btn">Remove</button>
+                    `;
+                    wrapper.querySelector('.image-comment').addEventListener('input', (e) => {
+                        this.projectImages[idx].comment = e.target.value;
+                    });
+                    wrapper.querySelector('.remove-image-btn').addEventListener('click', () => {
+                        this.projectImages.splice(idx, 1);
+                        this.renderImagePreviewList();
+                    });
+                    wrapper.querySelector('.annotate-image-btn').addEventListener('click', () => {
+                        openAnnotationModal(imgObj, idx);
+                    });
+                };
+                reader.readAsDataURL(imgObj.file);
+                previewList.appendChild(wrapper);
+            });
+        };
+    }
+
 }
 
 // Initialize the application when DOM is loaded
@@ -3568,3 +4248,113 @@ notificationStyles.textContent = `
 `;
 
 document.head.appendChild(notificationStyles);
+
+// Ensure cancelExcavationEditBtn is always present and works
+let addExcavationItemCardBtn = document.getElementById('add-excavation-item-card');
+let cancelExcavationEditBtn = document.getElementById('cancel-excavation-edit-btn');
+if (!cancelExcavationEditBtn) {
+    cancelExcavationEditBtn = document.createElement('button');
+    cancelExcavationEditBtn.type = 'button';
+    cancelExcavationEditBtn.className = 'btn btn-secondary';
+    cancelExcavationEditBtn.textContent = 'Cancel';
+    cancelExcavationEditBtn.style.marginLeft = '0.5em';
+    cancelExcavationEditBtn.style.display = 'none';
+    addExcavationItemCardBtn.parentNode.appendChild(cancelExcavationEditBtn);
+    cancelExcavationEditBtn.id = 'cancel-excavation-edit-btn';
+}
+function resetExcavationFormAndEditState() {
+    window.app.editingExcavationItemId = null;
+    addExcavationItemCardBtn.innerHTML = '<i class="fas fa-plus"></i> Add Excavation Item';
+    cancelExcavationEditBtn.style.display = 'none';
+    document.getElementById('excavation_item_description').value = '';
+    document.getElementById('excavation_item_area').value = '';
+    document.getElementById('excavation_item_area').dataset.breakdown = '';
+    document.getElementById('excavation-area-breakdown').innerHTML = '';
+    document.getElementById('excavation_item_volume').value = '';
+    document.getElementById('excavation_item_material').value = '';
+    document.getElementById('excavation_item_depth').value = '';
+    document.getElementById('excavation_item_equipment').value = '';
+    document.getElementById('excavation_item_machine_hours').value = '';
+    document.getElementById('excavation_item_disposal').value = 'Reuse';
+    document.getElementById('excavation_item_tip_fee').value = '150';
+    const isThirdPartyEl = document.getElementById('excavation_item_3rd_party');
+    if (isThirdPartyEl) isThirdPartyEl.checked = false;
+}
+cancelExcavationEditBtn.onclick = resetExcavationFormAndEditState;
+
+addExcavationItemCardBtn.onclick = function() {
+    const desc = document.getElementById('excavation_item_description').value.trim();
+    const area = parseFloat(document.getElementById('excavation_item_area').value) || 0;
+    let areaBreakdown = [];
+    try { areaBreakdown = JSON.parse(document.getElementById('excavation_item_area').dataset.breakdown||'[]'); } catch(e){}
+    const volume = parseFloat(document.getElementById('excavation_item_volume').value) || 0;
+    const material = document.getElementById('excavation_item_material').value;
+    const depth = parseFloat(document.getElementById('excavation_item_depth').value) || 0;
+    const equipmentId = document.getElementById('excavation_item_equipment').value;
+    const machineHours = parseFloat(document.getElementById('excavation_item_machine_hours').value) || 0;
+    const disposal = document.getElementById('excavation_item_disposal').value;
+    const tipFee = parseFloat(document.getElementById('excavation_item_tip_fee').value) || 0;
+    const isThirdPartyEl = document.getElementById('excavation_item_3rd_party');
+    const isThirdParty = isThirdPartyEl ? isThirdPartyEl.checked : false;
+    // Validation: require (area+depth) or volume
+    if ((!area || !depth) && !volume) {
+        window.app.showNotification('Please enter area and depth, or volume.', 'error');
+        return;
+    }
+    // Calculate volume
+    let finalVolume = volume;
+    if (!volume && area && depth) {
+        finalVolume = area * (depth / 1000);
+    }
+    const item = {
+        id: window.app.editingExcavationItemId || Date.now(),
+        desc, area, areaBreakdown, volume: finalVolume, material, depth, equipmentId, machineHours, disposal, tipFee, isThirdParty
+    };
+    if (window.app.editingExcavationItemId) {
+        // Update existing
+        const idx = window.app.excavationItemsV2.findIndex(i => i.id === window.app.editingExcavationItemId);
+        if (idx !== -1) window.app.excavationItemsV2[idx] = item;
+        window.app.showNotification('Excavation item updated!', 'success');
+    } else {
+        window.app.excavationItemsV2.push(item);
+        window.app.showNotification('Excavation item added successfully!', 'success');
+    }
+    window.app.renderExcavationItemsCards();
+    resetExcavationFormAndEditState();
+};
+
+// ... existing code ...
+        // Listen for Delete/Backspace key
+        function handleDeleteKey(e) {
+            if (!annotationModal.classList.contains('hidden') && (e.key === 'Delete' || e.key === 'Backspace')) {
+                if (fabricCanvas) {
+                    const active = fabricCanvas.getActiveObject();
+                    if (active) {
+                        fabricCanvas.remove(active);
+                        fabricCanvas.discardActiveObject();
+                        fabricCanvas.requestRenderAll();
+                        hideDeleteBtn();
+                        e.preventDefault();
+                    }
+                }
+            }
+        }
+        // Register keydown event when modal opens
+        document.addEventListener('keydown', handleDeleteKey);
+        // Remove event listener when modal closes
+        if (closeAnnotationModalBtn) closeAnnotationModalBtn.onclick = function() {
+            annotationModal.classList.add('hidden');
+            if (fabricCanvas) {
+                fabricCanvas.clear();
+                fabricCanvas.backgroundImage = null;
+            }
+            // Remove event listeners to avoid duplicates
+            if (fabricCanvas) {
+                fabricCanvas.off('selection:created', showDeleteBtn);
+                fabricCanvas.off('selection:updated', showDeleteBtn);
+                fabricCanvas.off('selection:cleared', hideDeleteBtn);
+            }
+            document.removeEventListener('keydown', handleDeleteKey);
+            hideDeleteBtn();
+        };
+// ... existing code ...

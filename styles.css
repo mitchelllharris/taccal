@@ -1484,3 +1484,31 @@ input[type="number"]::-webkit-inner-spin-button {
     max-height: 98vh;
   }
 }
+
+.annotation-delete-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  cursor: pointer;
+  color: #dc2626;
+  font-size: 1.1rem;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  z-index: 1002;
+  outline: none;
+  padding: 0;
+}
+.annotation-delete-btn:hover, .annotation-delete-btn:focus {
+  background: #ffeaea;
+  color: #b91c1c;
+  box-shadow: 0 4px 16px rgba(220,38,38,0.18);
+}

@@ -17,7 +17,7 @@
                     <div id="edit-mode-indicator" class="edit-mode-indicator hidden">
                         <i class="fas fa-edit"></i>
                         <span>Editing Quote</span>
-                    </div>
+        </div>
         </div>
                 <div class="header-actions">
                     <button id="save-quote" class="btn btn-secondary" type="button">
@@ -48,8 +48,8 @@
                             <h2><i class="fas fa-user"></i> Client Information</h2>
                             <div class="section-toggle">
                                 <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
+        </div>
+      </div>
                         <div class="section-content">
                             <div class="form-grid">
                                 <div class="form-group full-width">
@@ -57,12 +57,12 @@
                                     <div class="search-container">
                                         <input id="customer_search" type="text" name="customer_search" placeholder="Search by name, email, or phone...">
                                         <div id="customer-search-results" class="search-results"></div>
-                                    </div>
-                                </div>
-                            </div>
+        </div>
+      </div>
+        </div>
                             <div id="customer-details-display" class="customer-details-container hidden">
                                 <!-- Selected customer details will be displayed here -->
-                            </div>
+        </div>
                             <div class="form-group mt-4">
                                 <button type="button" id="add-new-customer-btn" class="btn btn-secondary">
                                     <i class="fas fa-user-plus"></i> Create New Customer
@@ -70,7 +70,7 @@
                                 <button type="button" id="clear-customer-btn" class="btn btn-danger hidden">
                                     <i class="fas fa-times"></i> Clear Customer
                                 </button>
-                            </div>
+      </div>
                             <!-- Hidden fields to store customer data for the quote -->
                             <input type="hidden" id="selected_customer_id" name="selected_customer_id">
                             <input type="hidden" id="project_firstname" name="project-firstname">
@@ -87,7 +87,7 @@
                             <input type="hidden" id="project_abn" name="project_abn">
                             <input type="hidden" id="project_phone" name="project_phone">
                             <input type="hidden" id="project_fax" name="project_fax">
-                        </div>
+        </div>
                     </section>
 
                     <!-- Service Details Section -->
@@ -96,8 +96,8 @@
                             <h2><i class="fas fa-tools"></i> Service Details</h2>
                             <div class="section-toggle">
                                 <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
+        </div>
+      </div>
                         <div class="section-content collapsed">
                             <div class="form-grid">
                                 <div class="form-group">
@@ -118,164 +118,182 @@
           <option value="Yes">Yes</option>
         </select>
       </div>
-                            </div>
-                            
-                            <!-- Traffic Control Details -->
-                            <div id="traffic-control-details" class="conditional-section hidden">
-                                <h3>Traffic Control Details</h3>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="traffic_control_type">Traffic Control Type</label>
-                                        <select id="traffic_control_type" name="traffic-control-type">
-                                            <option value="">Select type</option>
-                                            <option value="Stop/Slow">Stop/Slow</option>
-                                            <option value="Lane Closure">Lane Closure</option>
-                                            <option value="Road Closure">Road Closure</option>
-                                            <option value="Pedestrian Management">Pedestrian Management</option>
-                                            <option value="School Zone">School Zone</option>
-                                            <option value="Event Traffic">Event Traffic</option>
-                                            <option value="Emergency Response">Emergency Response</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-          <label for="traffic_control_hours_required">Hours Required</label>
-                                        <input id="traffic_control_hours_required" type="number" name="traffic-control-hours-required" min="0" step="0.5" placeholder="e.g., 8">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_workers_required">Workers Required</label>
-                                        <input id="traffic_control_workers_required" type="number" name="traffic-control-workers-required" min="0" placeholder="e.g., 2">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_hourly_rate">Traffic Controller Rate ($/hr)</label>
-                                        <input id="traffic_control_hourly_rate" type="number" name="traffic-control-hourly-rate" min="0" step="0.01" value="45" placeholder="45">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_equipment">Equipment Required</label>
-                                        <div class="multi-select-container">
-                                            <div class="multi-select-display" id="traffic_control_equipment_display">
-                                                <span class="placeholder">Select equipment</span>
-                                            </div>
-                                            <div class="multi-select-dropdown" id="traffic_control_equipment_dropdown">
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Stop/Slow Signs" data-field="traffic_control_equipment">
-                                                    <span>Stop/Slow Signs</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Barriers & Cones" data-field="traffic_control_equipment">
-                                                    <span>Barriers & Cones</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Arrow Boards" data-field="traffic_control_equipment">
-                                                    <span>Arrow Boards</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Portable Traffic Lights" data-field="traffic_control_equipment">
-                                                    <span>Portable Traffic Lights</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Safety Vests & PPE" data-field="traffic_control_equipment">
-                                                    <span>Safety Vests & PPE</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Communication Radios" data-field="traffic_control_equipment">
-                                                    <span>Communication Radios</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="All Equipment" data-field="traffic_control_equipment">
-                                                    <span>All Equipment</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="traffic_control_equipment" name="traffic-control-equipment">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_permits">Permits Required</label>
-                                        <div class="multi-select-container">
-                                            <div class="multi-select-display" id="traffic_control_permits_display">
-                                                <span class="placeholder">Select permits</span>
-                                            </div>
-                                            <div class="multi-select-dropdown" id="traffic_control_permits_dropdown">
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="No" data-field="traffic_control_permits">
-                                                    <span>No Permits</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Local Council" data-field="traffic_control_permits">
-                                                    <span>Local Council</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="State Government" data-field="traffic_control_permits">
-                                                    <span>State Government</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Police Approval" data-field="traffic_control_permits">
-                                                    <span>Police Approval</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Multiple Permits" data-field="traffic_control_permits">
-                                                    <span>Multiple Permits</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="traffic_control_permits" name="traffic-control-permits">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_notification">Notification Period</label>
-                                        <select id="traffic_control_notification" name="traffic-control-notification">
-                                            <option value="Immediate">Immediate</option>
-                                            <option value="24 Hours">24 Hours</option>
-                                            <option value="48 Hours">48 Hours</option>
-                                            <option value="1 Week">1 Week</option>
-                                            <option value="2 Weeks">2 Weeks</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_complexity">Complexity Level</label>
-                                        <select id="traffic_control_complexity" name="traffic-control-complexity">
-                                            <option value="Low">Low (Simple road work)</option>
-                                            <option value="Medium">Medium (Busy intersection)</option>
-                                            <option value="High">High (Major road closure)</option>
-                                            <option value="Critical">Critical (Emergency response)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="traffic_control_weather">Weather Considerations</label>
-                                        <div class="multi-select-container">
-                                            <div class="multi-select-display" id="traffic_control_weather_display">
-                                                <span class="placeholder">Select weather conditions</span>
-                                            </div>
-                                            <div class="multi-select-dropdown" id="traffic_control_weather_dropdown">
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="None" data-field="traffic_control_weather">
-                                                    <span>None</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Rain" data-field="traffic_control_weather">
-                                                    <span>Rain</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Wind" data-field="traffic_control_weather">
-                                                    <span>Wind</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Heat" data-field="traffic_control_weather">
-                                                    <span>Heat</span>
-                                                </label>
-                                                <label class="multi-select-option">
-                                                    <input type="checkbox" value="Multiple" data-field="traffic_control_weather">
-                                                    <span>Multiple Conditions</span>
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="traffic_control_weather" name="traffic-control-weather">
-                                    </div>
-                                    <div class="form-group full-width">
-                                        <label for="traffic_control_notes">Traffic Control Notes</label>
-                                        <textarea id="traffic_control_notes" name="traffic-control-notes" rows="3" placeholder="Additional notes about traffic control requirements, special considerations, or specific instructions..."></textarea>
+                                <!-- Traffic Control Details (hidden by default, toggled by JS) -->
+                                <div id="traffic-control-details" class="hidden">
+                                    <!-- Placeholder: Add any extra traffic control details here if needed -->
         </div>
-        </div>
+                                <div class="form-group">
+                                    <label for="excavation_required">Excavation Required?</label>
+                                    <select id="excavation_required" name="excavation_required">
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
       </div>
+                            </div>
+                        </div>
+                    </section>
 
+                    <!-- Traffic Control Section (NEW) -->
+                    <section class="form-section" data-section="traffic-control">
+                        <div class="section-header">
+                            <h2><i class="fas fa-traffic-light"></i> Traffic Control</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content collapsed">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="traffic_control_type">Traffic Control Type</label>
+                                    <select id="traffic_control_type" name="traffic-control-type">
+                                        <option value="">Select type</option>
+                                        <option value="Stop/Slow">Stop/Slow</option>
+                                        <option value="Lane Closure">Lane Closure</option>
+                                        <option value="Road Closure">Road Closure</option>
+                                        <option value="Pedestrian Management">Pedestrian Management</option>
+                                        <option value="School Zone">School Zone</option>
+                                        <option value="Event Traffic">Event Traffic</option>
+                                        <option value="Emergency Response">Emergency Response</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_hours_required">Hours Required</label>
+                                    <input id="traffic_control_hours_required" type="number" name="traffic-control-hours-required" min="0" step="0.5" placeholder="e.g., 8">
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_workers_required">Workers Required</label>
+                                    <input id="traffic_control_workers_required" type="number" name="traffic-control-workers-required" min="0" placeholder="e.g., 2">
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_hourly_rate">Traffic Controller Rate ($/hr)</label>
+                                    <input id="traffic_control_hourly_rate" type="number" name="traffic-control-hourly-rate" min="0" step="0.01" value="45" placeholder="45">
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_equipment">Equipment Required</label>
+                                    <div class="multi-select-container">
+                                        <div class="multi-select-display" id="traffic_control_equipment_display">
+                                            <span class="placeholder">Select equipment</span>
+                                        </div>
+                                        <div class="multi-select-dropdown" id="traffic_control_equipment_dropdown">
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Stop/Slow Signs" data-field="traffic_control_equipment">
+                                                <span>Stop/Slow Signs</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Barriers & Cones" data-field="traffic_control_equipment">
+                                                <span>Barriers & Cones</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Arrow Boards" data-field="traffic_control_equipment">
+                                                <span>Arrow Boards</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Portable Traffic Lights" data-field="traffic_control_equipment">
+                                                <span>Portable Traffic Lights</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Safety Vests & PPE" data-field="traffic_control_equipment">
+                                                <span>Safety Vests & PPE</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Communication Radios" data-field="traffic_control_equipment">
+                                                <span>Communication Radios</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="All Equipment" data-field="traffic_control_equipment">
+                                                <span>All Equipment</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="traffic_control_equipment" name="traffic-control-equipment">
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_permits">Permits Required</label>
+                                    <div class="multi-select-container">
+                                        <div class="multi-select-display" id="traffic_control_permits_display">
+                                            <span class="placeholder">Select permits</span>
+                                        </div>
+                                        <div class="multi-select-dropdown" id="traffic_control_permits_dropdown">
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="No" data-field="traffic_control_permits">
+                                                <span>No Permits</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Local Council" data-field="traffic_control_permits">
+                                                <span>Local Council</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="State Government" data-field="traffic_control_permits">
+                                                <span>State Government</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Police Approval" data-field="traffic_control_permits">
+                                                <span>Police Approval</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Multiple Permits" data-field="traffic_control_permits">
+                                                <span>Multiple Permits</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="traffic_control_permits" name="traffic-control-permits">
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_notification">Notification Period</label>
+                                    <select id="traffic_control_notification" name="traffic-control-notification">
+                                        <option value="Immediate">Immediate</option>
+                                        <option value="24 Hours">24 Hours</option>
+                                        <option value="48 Hours">48 Hours</option>
+                                        <option value="1 Week">1 Week</option>
+                                        <option value="2 Weeks">2 Weeks</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_complexity">Complexity Level</label>
+                                    <select id="traffic_control_complexity" name="traffic-control-complexity">
+                                        <option value="Low">Low (Simple road work)</option>
+                                        <option value="Medium">Medium (Busy intersection)</option>
+                                        <option value="High">High (Major road closure)</option>
+                                        <option value="Critical">Critical (Emergency response)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="traffic_control_weather">Weather Considerations</label>
+                                    <div class="multi-select-container">
+                                        <div class="multi-select-display" id="traffic_control_weather_display">
+                                            <span class="placeholder">Select weather conditions</span>
+                                        </div>
+                                        <div class="multi-select-dropdown" id="traffic_control_weather_dropdown">
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="None" data-field="traffic_control_weather">
+                                                <span>None</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Rain" data-field="traffic_control_weather">
+                                                <span>Rain</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Wind" data-field="traffic_control_weather">
+                                                <span>Wind</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Heat" data-field="traffic_control_weather">
+                                                <span>Heat</span>
+                                            </label>
+                                            <label class="multi-select-option">
+                                                <input type="checkbox" value="Multiple" data-field="traffic_control_weather">
+                                                <span>Multiple Conditions</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="traffic_control_weather" name="traffic-control-weather">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label for="traffic_control_notes">Traffic Control Notes</label>
+                                    <textarea id="traffic_control_notes" name="traffic-control-notes" rows="3" placeholder="Additional notes about traffic control requirements, special considerations, or specific instructions..."></textarea>
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                     <!-- Excavation Section (Refactored) -->
@@ -287,43 +305,7 @@
                             </div>
                         </div>
                         <div class="section-content collapsed">
-                            <!-- A. Equipment Setup (General) -->
-                            <div class="subsection">
-                                <h3>Equipment Setup</h3>
-                                <p class="text-sm text-secondary mb-4">Add all excavation machines to be used for this project. Assign machines globally or per excavation item.</p>
-                                <div id="excavation-equipment-list"></div>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="equipment_type">Machine Type</label>
-                                        <input id="equipment_type" type="text" placeholder="e.g., 1.5t Excavator, Bobcat">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="equipment_hire_type">Hire Type</label>
-                                        <select id="equipment_hire_type">
-                                            <option value="wet">Wet Hire (with operator)</option>
-                                            <option value="dry">Dry Hire (machine only)</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="equipment_hourly_rate">Hourly Rate ($/hr)</label>
-                                        <input id="equipment_hourly_rate" type="number" min="0" step="0.01" placeholder="e.g., 120">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="equipment_assign_mode">Assign To</label>
-                                        <select id="equipment_assign_mode">
-                                            <option value="all">All Excavation Items</option>
-                                            <option value="per">Assign Per Item</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <button type="button" id="add-excavation-equipment" class="btn btn-success">
-                                            <i class="fas fa-plus"></i> Add Equipment
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- B. Excavation Items (Per Task) -->
+                            <!-- Excavation Items (Per Task) -->
                             <div class="subsection">
                                 <h3>Excavation Items</h3>
                                 <p class="text-sm text-secondary mb-4">Add each excavation task or stage. Assign equipment, enter area, material, depth, and disposal info. Use the 3rd party toggle if handled externally.</p>
@@ -382,12 +364,12 @@
                                         <select id="excavation_item_disposal">
                                             <option value="Reuse">Reuse On Site</option>
                                             <option value="General">General Waste</option>
-                                            <option value="Clean Fill">Clean Fill</option>
+            <option value="Clean Fill">Clean Fill</option>
                                             <option value="Concrete">Concrete Waste</option>
                                             <option value="Asphalt">Asphalt Waste</option>
                                             <option value="Contaminated">Contaminated</option>
-                                        </select>
-                                    </div>
+          </select>
+        </div>
                                     <div class="form-group">
                                         <label for="excavation_item_tip_fee">Tip Fee ($/tonne)</label>
                                         <input id="excavation_item_tip_fee" type="number" min="0" step="0.01" value="150">
@@ -438,14 +420,65 @@
                                             <input id="excavator_cycle_time" type="number" min="0" step="0.1" value="2">
                                             <small class="text-secondary">Average time per excavator cycle (loading, swinging, dumping)</small>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
+        </div>
+      </div>
+    </div>
 
                             <!-- Excavation Summary (by item, equipment, disposal, 3rd party) -->
                             <div id="excavation-summary" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
                                 <h5 class="font-semibold mb-2">Excavation Summary</h5>
                                 <div id="excavation-summary-content"></div>
+                            </div>
+                            <!-- Excavation Time Summary (hidden by default, toggled by JS) -->
+                            <div id="excavation-time-summary" class="hidden">
+                                <!-- Placeholder: Excavation time calculation results will appear here -->
+                                <div>Total Volume: <span id="total_excavation_volume_time"></span></div>
+                                <div>Excavator Cycles: <span id="excavator_cycles"></span></div>
+                                <div>Truck Loads: <span id="truck_loads_time"></span></div>
+                                <div>Estimated Time: <span id="estimated_excavation_time"></span></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Equipment Setup Section (NEW, Top-level Accordion) -->
+                    <section class="form-section" data-section="equipment-setup">
+                        <div class="section-header">
+                            <h2><i class="fas fa-cogs"></i> Excavation Equipment Setup</h2>
+                            <div class="section-toggle">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                        <div class="section-content collapsed">
+                            <p class="text-sm text-secondary mb-4">Add all excavation machines to be used for this project. Assign machines globally or per excavation item.</p>
+                            <div id="excavation-equipment-list"></div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="equipment_type">Machine Type</label>
+                                    <input id="equipment_type" type="text" placeholder="e.g., 1.5t Excavator, Bobcat">
+                                </div>
+                                <div class="form-group">
+                                    <label for="equipment_hire_type">Hire Type</label>
+                                    <select id="equipment_hire_type">
+                                        <option value="wet">Wet Hire (with operator)</option>
+                                        <option value="dry">Dry Hire (machine only)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="equipment_hourly_rate">Hourly Rate ($/hr)</label>
+                                    <input id="equipment_hourly_rate" type="number" min="0" step="0.01" placeholder="e.g., 120">
+                                </div>
+                                <div class="form-group">
+                                    <label for="equipment_assign_mode">Assign To</label>
+                                    <select id="equipment_assign_mode">
+                                        <option value="all">All Excavation Items</option>
+                                        <option value="per">Assign Per Item</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <button type="button" id="add-excavation-equipment" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> Add Equipment
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -461,23 +494,23 @@
                         <div class="section-content">
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="quote_number">Quote Number</label>
+        <label for="quote_number">Quote Number</label>
                                     <input id="quote_number" type="text" name="quote-number">
-                                </div>
+      </div>
                                 <div class="form-group">
-                                    <label for="valid_for">Valid For (Days)</label>
+        <label for="valid_for">Valid For (Days)</label>
                                     <input id="valid_for" type="number" name="valid-for" value="30" min="1" max="365">
-                                </div>
+      </div>
                                 <div class="form-group">
-                                    <label for="profit_margin">Margin (%)</label>
+        <label for="profit_margin">Margin (%)</label>
                                     <input id="profit_margin" type="number" name="profit-margin" value="40" min="0" max="100" step="0.1">
                                 </div>
                                 <div class="form-group">
                                     <label for="discount">Discount (%)</label>
                                     <input id="discount" type="number" name="discount" value="0" min="0" max="100" step="0.1">
-                                </div>
+      </div>
                                 <div class="form-group">
-                                    <label for="tax_rate">Tax Rate (%)</label>
+        <label for="tax_rate">Tax Rate (%)</label>
                                     <input id="tax_rate" type="number" name="tax_rate" value="10" min="0" max="50" step="0.1">
                                 </div>
                             </div>
@@ -490,8 +523,8 @@
                             <h2><i class="fas fa-layer-group"></i> Materials</h2>
                             <div class="section-toggle">
                                 <i class="fas fa-chevron-down"></i>
-                            </div>
-                        </div>
+      </div>
+    </div>
                         <div class="section-content collapsed">
                             <!-- Material Import Subsection -->
                             <div class="subsection">
@@ -548,22 +581,28 @@
                                     <div class="form-group">
                                         <label for="new_import_cost_per_tonne">Import Material Cost ($/tonne)</label>
                                         <input id="new_import_cost_per_tonne" type="number" name="new-import-cost-per-tonne" min="0" step="0.01" value="190" placeholder="190">
-                                    </div>
+      </div>
                                     <div class="form-group" id="import_tip_fee_group" style="display:none;">
                                         <label for="new_import_tip_fee">Tip Fee ($/tonne)</label>
                                         <input id="new_import_tip_fee" type="number" name="new-import-tip-fee" min="0" step="0.01" value="150">
-                                    </div>
+      </div>
                                     <div class="form-group">
                                         <label for="new_import_machine_hours">Machine Hours Required</label>
                                         <input id="new_import_machine_hours" type="number" name="new-import-machine-hours" min="0" step="0.5" placeholder="e.g., 4 (0 if 3rd party delivery)">
                                         <small class="text-secondary">Hours needed for rollers/compactors to install material (0 if delivered and dumped by 3rd party)</small>
-                                    </div>
+      </div>
                                     <div class="form-group">
                                         <button type="button" id="add-import-material" class="btn btn-success">
                                             <i class="fas fa-plus"></i> Add Import Material
                                         </button>
-                                    </div>
-                                </div>
+                                        <button type="button" id="save-import-edit-btn" class="btn btn-primary" style="margin-left:0.5em;display:none;">
+                                            <i class="fas fa-save"></i> Save Changes
+                                        </button>
+                                        <button type="button" id="cancel-import-edit-btn" class="btn btn-secondary" style="margin-left:0.5em;display:none;">
+                                            Cancel
+                                        </button>
+      </div>
+    </div>
 
                                 <!-- Import Summary -->
                                 <div id="import-summary" class="mt-4 p-4 bg-gray-50 rounded-md hidden">
@@ -576,14 +615,14 @@
                                         <div>
                                             <span class="font-medium">Total Weight:</span>
                                             <span id="total_import_weight">0 tonnes</span>
-                                        </div>
+      </div>
                                         <div>
                                             <span class="font-medium">Total Cost:</span>
                                             <span id="total_import_cost">$0.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+      </div>
+      </div>
+      </div>
+    </div>
 
                             <!-- Emulsion Subsection -->
                             <div class="subsection">
@@ -683,24 +722,30 @@
                                         <button type="button" id="add-labor-role-btn" class="btn btn-success">
                                             <i class="fas fa-plus"></i> Add Labor Role
                                         </button>
-                                    </div>
-                                </div>
+                                        <button type="button" id="save-labor-role-edit-btn" class="btn btn-primary" style="display:none;">
+                                            <i class="fas fa-save"></i> Save Changes
+                                        </button>
+                                        <button type="button" id="cancel-labor-role-edit-btn" class="btn btn-secondary" style="display:none;">
+                                            Cancel
+                                        </button>
+      </div>
+      </div>
                                 <div id="labor-roles-list" class="labor-list" style="margin-top:1rem;"></div>
                                 <div id="labor-roles-total" class="text-success font-medium" style="margin-top:0.5rem;"></div>
                                 <div class="form-grid" style="margin-top:1.5rem;">
                                     <div class="form-group">
-                                        <label for="superannuation">Superannuation Rate (%)</label>
+        <label for="superannuation">Superannuation Rate (%)</label>
                                         <input id="superannuation" type="number" name="superannuation" value="11" min="0" max="100" step="0.1">
-                                    </div>
+      </div>
                                     <div class="form-group">
-                                        <label for="workers_compensation">Workers Compensation (%)</label>
+        <label for="workers_compensation">Workers Compensation (%)</label>
                                         <input id="workers_compensation" type="number" name="workers_compensation" value="2" min="0" max="100" step="0.1">
-                                    </div>
+      </div>
                                     <div class="form-group">
                                         <label for="other_labor_costs">Other Costs (%)</label>
                                         <input id="other_labor_costs" type="number" name="other-labor-costs" value="2" min="0" max="100" step="0.1">
-                                    </div>
-                                </div>
+      </div>
+    </div>
 
                             </div>
 
@@ -733,14 +778,17 @@
                                     <input id="other_labor_fixed_amount" name="other_labor_fixed_amount" type="number" value="0" min="0" step="0.01">
                                 </div>
                                 <div class="form-group checkbox-group">
-                                    <label for="add_gst">
-                                        <input id="add_gst" type="checkbox" name="add_gst">
-                                        Add GST
-                                    </label>
+                                    <!-- GST option removed -->
           </div>
                                         <div class="form-group">
                                             <button type="button" id="add-labor-btn" class="btn btn-success">
                                                 <i class="fas fa-plus"></i> Add Labor
+                                            </button>
+                                            <button type="button" id="save-labor-edit-btn" class="btn btn-primary" style="display:none;">
+                                                <i class="fas fa-save"></i> Save Changes
+                                            </button>
+                                            <button type="button" id="cancel-labor-edit-btn" class="btn btn-secondary" style="display:none;">
+                                                Cancel
                                             </button>
       </div>
       </div>
@@ -799,61 +847,20 @@
                         </div>
                     </section>
 
-                    <!-- Equipment Section -->
-                    <section class="form-section" data-section="equipment">
+                    <!-- Project Images & Notes Section -->
+                    <section class="form-section" data-section="images-notes">
                         <div class="section-header">
-                            <h2><i class="fas fa-truck"></i> Equipment Required</h2>
+                            <h2><i class="fas fa-image"></i> Project Images & Notes</h2>
                             <div class="section-toggle">
                                 <i class="fas fa-chevron-down"></i>
                             </div>
-    </div>
+                        </div>
                         <div class="section-content collapsed">
-                            <div class="equipment-grid">
-                                <div class="form-group">
-        <label for="compactor_plate">Compactor Plate</label>
-                                    <input id="compactor_plate" type="number" name="compactor_plate" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="rammer_compactor">Rammer Compactor</label>
-                                    <input id="rammer_compactor" type="number" name="rammer_compactor" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="leaf_blower">Leaf Blower</label>
-                                    <input id="leaf_blower" type="number" name="leaf_blower" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="concrete_cutter">Concrete Cutter</label>
-                                    <input id="concrete_cutter" type="number" name="concrete_cutter" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="_1t_roller">1t Roller</label>
-                                    <input id="_1t_roller" type="number" name="1t_roller" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="_2t_roller">2t Roller</label>
-                                    <input id="_2t_roller" type="number" name="2t_roller" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="skidsteer">Skidsteer</label>
-                                    <input id="skidsteer" type="number" name="skidsteer" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="mr_truck">MR Truck</label>
-                                    <input id="mr_truck" type="number" name="mr_truck" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="hr_truck">HR Truck</label>
-                                    <input id="hr_truck" type="number" name="hr_truck" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="trailer">Trailer</label>
-                                    <input id="trailer" type="number" name="trailer" value="0" min="0">
-      </div>
-                                <div class="form-group">
-        <label for="car">Car</label>
-                                    <input id="car" type="number" name="car" value="0" min="0">
-                                </div>
+                            <div class="form-group">
+                                <label for="project_images">Upload Images</label>
+                                <input id="project_images" name="project_images" type="file" accept="image/*" multiple>
                             </div>
+                            <div id="image-preview-list" class="image-preview-list"></div>
                         </div>
                     </section>
 
@@ -879,7 +886,7 @@
                         </button>
                     </div>
                 </form>
-            </div>
+    </div>
 
             <!-- Results Panel -->
             <div id="results-panel" class="results-panel hidden">
@@ -989,8 +996,8 @@
                     <i class="fas fa-save"></i> Save Customer
                 </button>
             </div>
-        </div>
-    </div>
+      </div>
+      </div>
 
     <!-- Area Calculator Modal (shared for both forms) -->
     <div id="area-calc-modal" class="modal-overlay hidden">
@@ -998,33 +1005,72 @@
             <div class="modal-header">
                 <h3>Area Calculator</h3>
                 <button id="close-area-calc-modal" class="btn btn-icon"><i class="fas fa-times"></i></button>
-            </div>
+      </div>
             <div class="modal-body">
                 <form id="area-calc-form">
                     <div class="form-group">
                         <label for="area-calc-label">Label (optional)</label>
                         <input id="area-calc-label" type="text" placeholder="e.g., Pothole 1">
-                    </div>
+      </div>
                     <div class="form-group">
                         <label for="area-calc-length">Length (mm)</label>
                         <input id="area-calc-length" type="number" min="0" step="1" required placeholder="e.g., 1200">
-                    </div>
+      </div>
                     <div class="form-group">
                         <label for="area-calc-width">Width (mm)</label>
                         <input id="area-calc-width" type="number" min="0" step="1" required placeholder="e.g., 3000">
-                    </div>
+      </div>
                     <button type="button" id="area-calc-add-btn" class="btn btn-success"><i class="fas fa-plus"></i> Add</button>
                 </form>
                 <div id="area-calc-list" class="area-calc-list mt-3"></div>
                 <div class="mt-2"><strong>Total Area:</strong> <span id="area-calc-total">0.00</span> m²</div>
-            </div>
+      </div>
             <div class="modal-footer">
                 <button type="button" id="area-calc-save-btn" class="btn btn-primary">Save</button>
                 <button type="button" id="area-calc-cancel-btn" class="btn btn-secondary">Cancel</button>
-            </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Annotation Modal for Project Images -->
+    <div id="annotation-modal" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width:700px;padding:2em;max-height:90vh;overflow-y:auto;">
+        <div class="modal-header">
+          <h3>Annotate Image</h3>
+          <button id="close-annotation-modal" class="btn btn-icon"><i class="fas fa-times"></i></button>
         </div>
+        <div class="modal-body">
+          <canvas id="annotation-canvas" width="600" height="400"></canvas>
+          <div style="margin-top:1em;">
+            <button id="draw-arrow-btn" class="btn btn-secondary">Arrow</button>
+            <button id="draw-rect-btn" class="btn btn-secondary">Rectangle</button>
+            <button id="draw-text-btn" class="btn btn-secondary">Text</button>
+            <button id="draw-freehand-btn" class="btn btn-secondary">Freehand</button>
+            <button id="save-annotation-btn" class="btn btn-primary">Save Annotation</button>
+            <label style="margin-left:1em;display:inline-block;vertical-align:middle;">
+              Brush Size:
+              <input type="range" id="freehand-brush-size" min="1" max="30" value="5" style="vertical-align:middle;width:120px;">
+              <span id="freehand-brush-size-value">5</span> px
+            </label>
+            <label style="margin-left:1em;display:inline-block;vertical-align:middle;">
+              Brush Color:
+              <input type="color" id="freehand-brush-color" value="#000000" style="vertical-align:middle;width:32px;height:32px;padding:0;border:none;">
+            </label>
+            <label style="margin-left:1em;display:inline-block;vertical-align:middle;">
+              Text Color:
+              <input type="color" id="annotation-text-color" value="#000000" style="vertical-align:middle;width:32px;height:32px;padding:0;border:none;">
+            </label>
+          </div>
+          <!-- Delete object button for annotation modal (moved inside modal-body) -->
+          <button id="annotation-delete-object-btn" class="annotation-delete-btn" style="display:none;position:absolute;">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="scripts.js" type="text/javascript"></script>
+    <!-- Fabric.js for image annotation (local) -->
+    <script src="fabric.min.js"></script>
 </body>
 </html>
